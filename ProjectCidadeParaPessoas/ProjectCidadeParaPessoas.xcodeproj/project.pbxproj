@@ -47,7 +47,6 @@
 			children = (
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
 				24A6DF722F7710520007A403 /* Products */,
-				916F8D7A2F7AEE8E00980392 /* Models */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,13 +56,6 @@
 				24A6DF712F7710520007A403 /* ProjectCidadeParaPessoas.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		916F8D7A2F7AEE8E00980392 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
