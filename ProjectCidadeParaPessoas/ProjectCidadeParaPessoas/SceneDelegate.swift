@@ -20,6 +20,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let initialViewController = ViewController()
         window?.rootViewController = UINavigationController(rootViewController: initialViewController)
         window?.makeKeyAndVisible()
+        
+        if let urlContext = connectionOptions.urlContexts.first {
+            // Access the URL
+            let url = urlContext.url
+            // Handle the URL here
+            //handleDeepLink(url)
+            guard let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("card.share") == .orderedSame else {
+                print("Compartilhado uhuiuuu!")
+                return
+            }
+            
+            var parameters: [String: String] = [:]
+            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
+                parameters[$0.name] = $0.value
+            }
+            
+            guard let name = parameters["name"] else {
+                print("Name not found")
+                return
+            }
+            
+            do {
+                var decoded = try JSONDecoder().decode(Card.self,from: name.data(using: .utf8) ?? Data()) 
+            }
+            catch {
+                print(error.localizedDescription)
+            }
+            window?.rootViewController  = SharedViewController(text: name)
+        }
+        else {
+//            window?.rootViewController  = SharedViewController(text: "Banana")
+            window?.rootViewController = ViewController()
+        }
     }
 
 
@@ -50,6 +83,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
+    
+    
 
 
 }
