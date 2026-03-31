@@ -18,7 +18,7 @@ class ARViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         
-        let configImage = UIImage.SymbolConfiguration(pointSize: 48)
+        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
         let image = UIImage(systemName: "microphone.fill", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         
         var config = UIButton.Configuration.plain()
@@ -37,8 +37,27 @@ class ARViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         
-        let configImage = UIImage.SymbolConfiguration(pointSize: 48)
+        var configImage = UIImage.SymbolConfiguration(pointSize: 40, weight: .bold)
         let image = UIImage(systemName: "magnifyingglass", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        
+        var config = UIButton.Configuration.plain()
+        
+        config.image = image
+        config.imagePlacement = .all
+        config.background.backgroundColor = UIColor(named: "ButtonColor")
+        config.background.cornerRadius = 1000
+        config.imagePadding = 12.88
+        
+        button.configuration = config
+        return button
+    }()
+    
+    let libraryButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        let configImage = UIImage.SymbolConfiguration(pointSize: 20)
+        let image = UIImage(systemName: "book.fill", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         
         var config = UIButton.Configuration.plain()
         
@@ -65,6 +84,7 @@ class ARViewController: UIViewController {
         view.addSubview(custonARView)
         view.addSubview(audioButton)
         view.addSubview(searchButton)
+        view.addSubview(libraryButton)
         
         // add constrains
         NSLayoutConstraint.activate([
@@ -81,7 +101,11 @@ class ARViewController: UIViewController {
             searchButton.leadingAnchor.constraint(equalTo: audioButton.trailingAnchor, constant: 32.65),
             searchButton.bottomAnchor.constraint(equalTo: audioButton.bottomAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: 78),
-            searchButton.heightAnchor.constraint(equalToConstant: 78),
+            searchButton.heightAnchor.constraint(equalToConstant: 78),            
+            libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
+            libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            libraryButton.widthAnchor.constraint(equalToConstant: 52),
+            libraryButton.heightAnchor.constraint(equalToConstant: 52),
         ])
     }
 }
