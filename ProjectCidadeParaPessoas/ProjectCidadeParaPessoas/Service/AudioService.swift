@@ -60,6 +60,7 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
     private func setupView() {
         view.backgroundColor = .systemBackground
 
+        //add subviews
         view.addSubview(playButton)
         view.addSubview(stopButton)
         view.addSubview(recordButton)
@@ -68,6 +69,7 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
         stopButton.addTarget(self, action: #selector(stopAudio(_:)), for: .touchUpInside)
         recordButton.addTarget(self, action: #selector(recordAudio(_:)), for: .touchUpInside)
         
+        //add constraints
         NSLayoutConstraint.activate([
             recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             recordButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
