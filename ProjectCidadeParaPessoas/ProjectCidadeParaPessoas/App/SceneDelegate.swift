@@ -26,7 +26,40 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = rootVC
         window.makeKeyAndVisible()
         self.window = window
+        
+        if let urlContext = connectionOptions.urlContexts.first {
+            // Access the URL
+            let url = urlContext.url
+            // Handle the URL here
+            //handleDeepLink(url)
+            guard let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("card.share") == .orderedSame else {
+                print("Compartilhado uhuiuuu!")
+                return
+            }
+            
+            var parameters: [String: String] = [:]
+            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
+                parameters[$0.name] = $0.value
+            }
+            
+            guard let name = parameters["name"] else {
+                print("Name not found")
+                return
+            }
+            
+            
+            let decoded = try? JSONDecoder().decode(Card2.self,from: name.data(using: .utf8) ?? Data())
+            window.rootViewController  = SharedViewController(text: decoded!.texto)
+        
+            
+        }
+        else {
+//            window?.rootViewController  = SharedViewController(text: "Banana")
+            window.rootViewController = ViewController()
+        }
     }
+    }
+    
 
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -57,6 +90,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
-}
 
