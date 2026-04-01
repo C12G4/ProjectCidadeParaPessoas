@@ -19,75 +19,15 @@
 import UIKit
 import AVFoundation
 
-class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
+class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     var audioPlayer: AVAudioPlayer?
     var audioRecorder: AVAudioRecorder?
     let audioSession = AVAudioSession.sharedInstance()
     
-    //MARK: - The following 'let' are responsible for creating the visual of the buttons
-    let playButton: UIButton = {
-        let playButton = UIButton()
-        playButton.translatesAutoresizingMaskIntoConstraints = false
-        playButton.setTitle("Play", for: .normal)
-        print("Botão sendo acessado opa opa")
-        
-        return playButton
-    }()
-    
-    let stopButton: UIButton = {
-        let stopButton = UIButton()
-        stopButton.translatesAutoresizingMaskIntoConstraints = false
-        stopButton.setTitle("Stop", for: .normal)
-        
-        return stopButton
-    }()
-    
-    let recordButton: UIButton = {
-        let recordButton = UIButton()
-        recordButton.translatesAutoresizingMaskIntoConstraints = false
-        recordButton.setTitle("Record", for: .normal)
-        
-        return recordButton
-    }()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        audioInit()
-        setupView()
-    }
-    
-    private func setupView() {
-        view.backgroundColor = .systemBackground
-
-        //add subviews
-        view.addSubview(playButton)
-        view.addSubview(stopButton)
-        view.addSubview(recordButton)
-
-        playButton.addTarget(self, action: #selector(playAudio(_:)), for: .touchUpInside)
-        stopButton.addTarget(self, action: #selector(stopAudio(_:)), for: .touchUpInside)
-        recordButton.addTarget(self, action: #selector(recordAudio(_:)), for: .touchUpInside)
-        
-        //add constraints
-        NSLayoutConstraint.activate([
-            recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            recordButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
-
-            stopButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stopButton.topAnchor.constraint(equalTo: recordButton.bottomAnchor, constant: 16),
-
-            playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            playButton.topAnchor.constraint(equalTo: stopButton.bottomAnchor, constant: 16)
-        ])
-    }
-    
     //MARK: - This function has the purpose of managing the audio player, doing the treatment of the audio paths
     func audioInit() {
-        /// It starts by turning the functions playButton and stopButton as false (they were created after this function), since no audio was recorded
-        playButton.isEnabled = false
-        stopButton.isEnabled = false
-        
+        /// !!! Initially, this place was used for turning the functions playButton and stopButton as false, since no audio was recorded at the beginning
+     
         /// these following 'let' - fileMgr, dirPaths, soundFileURL - looks out for the documents directory from the app and constructs a URL to a file in that location
         /// named sound.caf
         let fileMgr = FileManager.default
@@ -121,8 +61,20 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
     }
     
     //MARK: - The following action methods will implement it to the three buttons created previously
+    @objc private func recordTouchDown(_ sender: Any) {
+        startRecording()
+    }
+
+    @objc private func recordTouchUpInside(_ sender: Any) {
+        stopRecordingIfNeeded()
+    }
+
+    @objc private func recordTouchDragExit(_ sender: Any) {
+        stopRecordingIfNeeded()
+    }
+    
     /// record audio method
-    @objc func recordAudio(_ sender: Any) {
+    private func startRecording() {
         audioSession.requestRecordPermission { [weak self] granted in
             guard let self = self else { return }
             DispatchQueue.main.async {
@@ -133,24 +85,32 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
                         } catch {
                             print("Erro ao ativar sessão: \(error)")
                         }
-                        self.playButton.isEnabled = false
-                        self.stopButton.isEnabled = true
+//                        self.playButton.isEnabled = false
+//                        self.stopButton.isEnabled = true
                         self.audioRecorder?.record()
                     }
                 } else {
                     let alert = UIAlertController(title: "Permissão negada", message: "Habilite o microfone nos Ajustes.", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    self.present(alert, animated: true)
+//                    self.present(alert, animated: true)
                 }
             }
         }
     }
     
+    private func stopRecordingIfNeeded() {
+        if audioRecorder?.isRecording == true {
+            audioRecorder?.stop()
+            do { try audioSession.setActive(false) } catch { }
+        }
+//        stopButton.isEnabled = false
+//        playButton.isEnabled = true
+//        recordButton.isEnabled = true
+    }
+    
     /// stop audio method
     @objc func stopAudio(_ sender: Any) {
-        stopButton.isEnabled = false
-        playButton.isEnabled = true
-        recordButton.isEnabled = true
+        /// here it turned stopButton = false and all the others as true
         
         if audioRecorder?.isRecording == true {
             audioRecorder?.stop()
@@ -164,8 +124,7 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
     /// play audio method
     @objc func playAudio(_ sender: Any) {
         if audioRecorder?.isRecording == false {
-            stopButton.isEnabled = false
-            recordButton.isEnabled = false
+            /// here it turned the stopButton and recordButton as false, and only that
            
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: (audioRecorder?.url)!)
@@ -181,9 +140,8 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
     
     //MARK: - Delegate Methods
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer,
-                                     successfully flag: Bool) {
-        recordButton.isEnabled = true
-        stopButton.isEnabled = false
+                                     successfully flag: Bool, button: UIButton) {
+        /// recordButton = true and stopButton = false
     }
     
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
@@ -191,7 +149,7 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
     }
     
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        playButton.isEnabled = true
+        /// playButton = true
     }
     
     func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
@@ -199,8 +157,3 @@ class AudioService: UIViewController, AVAudioPlayerDelegate, AVAudioRecorderDele
     }
     
 }
-
-#Preview {
-    return AudioService().view
-}
-
