@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
 //        window = UIWindow(windowScene: windowScene)
-//        
+//
 //        let initialViewController = ARController()
 //        window?.rootViewController = UINavigationController(rootViewController: initialViewController)
 //        window?.makeKeyAndVisible()
@@ -46,10 +46,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 print("Name not found")
                 return
             }
-            
-            
+            //o decode ta errado
             let decoded = try? JSONDecoder().decode(Card2.self,from: name.data(using: .utf8) ?? Data())
-            window.rootViewController  = SharedViewController(text: decoded!.texto)
+            
+//            window.rootViewController  = SharedViewController(card: decoded?.texto ?? "\(name.data(using: .utf8) ?? Data())")
+            window.rootViewController  = SharedViewController(card: decoded ?? Card2(title: "nao chego", texto: "nao chego"))
         
             
         }

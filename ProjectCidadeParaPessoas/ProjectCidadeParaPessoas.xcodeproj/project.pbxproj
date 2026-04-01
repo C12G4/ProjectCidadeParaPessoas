@@ -156,6 +156,7 @@
 				DEVELOPMENT_TEAM = 539HYZPTH8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -191,6 +192,7 @@
 				DEVELOPMENT_TEAM = 539HYZPTH8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
