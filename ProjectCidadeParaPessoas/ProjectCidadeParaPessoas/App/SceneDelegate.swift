@@ -20,6 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let initialViewController = ARController()
 //        window?.rootViewController = UINavigationController(rootViewController: initialViewController)
 //        window?.makeKeyAndVisible()
+        
+    
         let window = UIWindow(windowScene: windowScene)
         let rootVC = ARViewController()
         
