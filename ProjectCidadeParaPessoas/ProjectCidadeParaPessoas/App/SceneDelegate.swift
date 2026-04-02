@@ -16,17 +16,51 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
 //        window = UIWindow(windowScene: windowScene)
-//        
+//
 //        let initialViewController = ARController()
 //        window?.rootViewController = UINavigationController(rootViewController: initialViewController)
 //        window?.makeKeyAndVisible()
+        
+    
         let window = UIWindow(windowScene: windowScene)
         let rootVC = ARViewController()
         
         window.rootViewController = rootVC
         window.makeKeyAndVisible()
         self.window = window
+        
+        if let urlContext = connectionOptions.urlContexts.first {
+            // Access the URL
+            let url = urlContext.url
+            // Handle the URL here
+            //handleDeepLink(url)
+            guard let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("card.share") == .orderedSame else {
+                return
+            }
+            
+            var parameters: [String: String] = [:]
+            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
+                parameters[$0.name] = $0.value
+            }
+            
+            guard let name = parameters["name"] else {
+                print("Name not found")
+                return
+            }
+            //o decode ta errado
+            let decoded = try? JSONDecoder().decode(Card2.self,from: name.data(using: .utf8) ?? Data())
+            
+//            window.rootViewController  = SharedViewController(card: decoded?.texto ?? "\(name.data(using: .utf8) ?? Data())")
+            window.rootViewController  = try? SharedViewController(card: decoded ?? Card2(title: "CardFalhaTexto", texto: "CardFalhaTexto",audio: "CardFalhaTexto"))
+        
+            
+        }
+        else {
+            window.rootViewController = ARViewController()
+        }
     }
+    }
+    
 
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -57,6 +91,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
-}
 
