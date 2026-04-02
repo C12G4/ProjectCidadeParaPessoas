@@ -29,6 +29,11 @@
 			path = ProjectCidadeParaPessoas;
 			sourceTree = "<group>";
 		};
+		91A4A5C12F7C42C4001B956A /* ViewModels */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +53,7 @@
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
 				24A6DF722F7710520007A403 /* Products */,
 				916F8D7A2F7AEE8E00980392 /* Models */,
+				91A4A5C12F7C42C4001B956A /* ViewModels */,
 			);
 			sourceTree = "<group>";
 		};
@@ -83,6 +89,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
+				91A4A5C12F7C42C4001B956A /* ViewModels */,
 			);
 			name = ProjectCidadeParaPessoas;
 			packageProductDependencies = (
@@ -153,7 +160,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 539HYZPTH8;
+				DEVELOPMENT_TEAM = 32M6C7GWMQ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
@@ -189,7 +196,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 539HYZPTH8;
+				DEVELOPMENT_TEAM = 32M6C7GWMQ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";

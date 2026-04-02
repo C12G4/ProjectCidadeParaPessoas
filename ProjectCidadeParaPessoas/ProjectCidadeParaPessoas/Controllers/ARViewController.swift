@@ -5,18 +5,12 @@
 //  Created by Jonas Fernando Nascimento Melo on 30/03/26.
 //
 import UIKit
+import RealityKit
 
 class ARViewController: UIViewController {
+    let customARViewModel = CustomARViewModel()
     
-    @objc func share(_ sender: Any) {
-        ///TODO: receber card
-        var card =  try? Card2(title: "Cardtitle", texto: "Cardtexto", audio: "CardAudio")
-        var items = ShareService.shared.share(card: card!)
-        let ac = UIActivityViewController(activityItems: items as! [Any], applicationActivities: nil)
-        present(ac, animated: true)
-    }
-    
-    let custonARView: CustomARView = {
+    let customARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
         
@@ -107,9 +101,10 @@ class ARViewController: UIViewController {
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10
-        
+        audioButton.addTarget(nil, action: #selector(audioButtonAction), for: .allTouchEvents)
+
         //add subviews
-        view.addSubview(custonARView)
+        view.addSubview(customARView)
         view.addSubview(audioButton)
         view.addSubview(searchButton)
         view.addSubview(libraryButton)
@@ -121,10 +116,10 @@ class ARViewController: UIViewController {
         
         // add constrains
         NSLayoutConstraint.activate([
-            custonARView.topAnchor.constraint(equalTo: view.topAnchor),
-            custonARView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            custonARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            custonARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            customARView.topAnchor.constraint(equalTo: view.topAnchor),
+            customARView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            customARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            customARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
             audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 102.38),
             audioButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32.25),
@@ -146,5 +141,17 @@ class ARViewController: UIViewController {
             shareButton.widthAnchor.constraint(equalToConstant: 78),
             shareButton.heightAnchor.constraint(equalToConstant: 78),
         ])
+    }
+    
+    @objc func audioButtonAction(){
+        customARView.scene.addAnchor(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
+    }
+    
+    @objc func share(_ sender: Any) {
+        ///TODO: receber card
+        var card =  try? Card2(title: "Cardtitle", texto: "Cardtexto", audio: "CardAudio")
+        var items = ShareService.shared.share(card: card!)
+        let ac = UIActivityViewController(activityItems: items as! [Any], applicationActivities: nil)
+        present(ac, animated: true)
     }
 }

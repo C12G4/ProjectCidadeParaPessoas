@@ -20,27 +20,9 @@ class CustomARView: ARView {
     
     convenience init(){
         self.init(frame: UIScreen.main.bounds)
-        setup()
-    }
-        
-    func setup() {
-        configuration()
-    }
-    
-    func creatObj(color: UIColor) {
-        let objeto = MeshResource.generateBox(size: 0.1)
-        let material = SimpleMaterial(color: color, isMetallic: true)
-        let entidade = ModelEntity(mesh: objeto, materials: [material])
-        
-        let ancora = AnchorEntity(world: .zero)
-        
-        ancora.addChild(entidade)
-        
-        scene.addAnchor(ancora)
-    }
-    
-    func configuration(){
+
         let configuration = ARWorldTrackingConfiguration()
+        configuration.worldAlignment = .gravityAndHeading
         session.run(configuration)
     }
 }
