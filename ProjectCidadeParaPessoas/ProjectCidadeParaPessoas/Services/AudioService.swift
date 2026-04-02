@@ -61,20 +61,20 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     }
     
     //MARK: - The following action methods will implement it to the three buttons created previously
-    @objc private func recordTouchDown(_ sender: Any) {
+    @objc func recordTouchDown(_ sender: Any) {
         startRecording()
     }
 
-    @objc private func recordTouchUpInside(_ sender: Any) {
+    @objc func recordTouchUpInside(_ sender: Any) {
         stopRecordingIfNeeded()
     }
 
-    @objc private func recordTouchDragExit(_ sender: Any) {
+    @objc func recordTouchDragExit(_ sender: Any) {
         stopRecordingIfNeeded()
     }
     
     /// record audio method
-    private func startRecording() {
+    @objc func startRecording() {
         audioSession.requestRecordPermission { [weak self] granted in
             guard let self = self else { return }
             DispatchQueue.main.async {

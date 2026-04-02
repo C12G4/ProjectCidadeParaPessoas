@@ -7,6 +7,9 @@
 import UIKit
 
 class ARViewController: UIViewController {
+    // AudioService() instance
+    let audioService = AudioService()
+    
     let custonARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -85,6 +88,11 @@ class ARViewController: UIViewController {
         view.addSubview(audioButton)
         view.addSubview(searchButton)
         view.addSubview(libraryButton)
+        
+        // addTarget
+        audioButton.addTarget(self, action: #selector(audioService.recordTouchDown(_:)), for: .touchUpInside)
+        audioButton.addTarget(self, action: #selector(audioService.recordTouchUpInside(_:)), for: .touchUpInside)
+        audioButton.addTarget(self, action: #selector(audioService.recordTouchDragExit(_:)), for: .touchUpInside)
         
         // add constrains
         NSLayoutConstraint.activate([
