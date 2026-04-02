@@ -83,6 +83,7 @@ class ARViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayer
         super.viewDidLoad()
         setupController()
         audioInit()
+        setAudioButtonRecordingState(isRecording: false)
     }
 
     func setupController() {
@@ -99,9 +100,11 @@ class ARViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayer
         // addTarget
         searchButton.addTarget(self, action: #selector(playAudio(_:)), for: .touchUpInside)
         
-        audioButton.addTarget(self, action: #selector(recordTouchDown(_:)), for: .touchUpInside)
+        audioButton.addTarget(self, action: #selector(recordTouchDown(_:)), for: .touchDown)
         audioButton.addTarget(self, action: #selector(recordTouchUpInside(_:)), for: .touchUpInside)
-        audioButton.addTarget(self, action: #selector(recordTouchDragExit(_:)), for: .touchUpInside)
+        audioButton.addTarget(self, action: #selector(recordTouchUpOutside(_:)), for: .touchUpOutside)
+        audioButton.addTarget(self, action: #selector(recordTouchDragExit(_:)), for: .touchDragExit)
+        audioButton.addTarget(self, action: #selector(recordTouchCancel(_:)), for: .touchCancel)
     
         // add constrains
         NSLayoutConstraint.activate([
@@ -118,7 +121,7 @@ class ARViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayer
             searchButton.leadingAnchor.constraint(equalTo: audioButton.trailingAnchor, constant: 32.65),
             searchButton.bottomAnchor.constraint(equalTo: audioButton.bottomAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: 78),
-            searchButton.heightAnchor.constraint(equalToConstant: 78),            
+            searchButton.heightAnchor.constraint(equalToConstant: 78),
             libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
@@ -173,42 +176,54 @@ class ARViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayer
         stopRecordingIfNeeded()
     }
 
+    @objc func recordTouchUpOutside(_ sender: Any) {
+        stopRecordingIfNeeded()
+    }
+
     @objc func recordTouchDragExit(_ sender: Any) {
         stopRecordingIfNeeded()
     }
-    
-    /// record audio method
+
+    @objc func recordTouchCancel(_ sender: Any) {
+        stopRecordingIfNeeded()
+    }
+
     @objc func startRecording() {
         audioSession.requestRecordPermission { [weak self] granted in
             guard let self = self else { return }
+
             DispatchQueue.main.async {
-                if granted {
-                    if self.audioRecorder?.isRecording == false {
-                        do {
-                            print("gravando")
-                            try self.audioSession.setActive(true)
-                        } catch {
-                            print("Erro ao ativar sessão: \(error)")
-                        }
-//                        self.playButton.isEnabled = false
-//                        self.stopButton.isEnabled = true
-                        self.audioRecorder?.record()
-                    }
-                } else {
-                    let alert = UIAlertController(title: "Permissão negada", message: "Habilite o microfone nos Ajustes.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-//                    self.present(alert, animated: true)
+                guard granted else { return }
+                guard self.audioRecorder?.isRecording == false else { return }
+
+                do {
+                    try self.audioSession.setActive(true)
+                    self.audioRecorder?.record()
+                    self.setAudioButtonRecordingState(isRecording: true)
+                } catch {
+                    print("Erro ao ativar sessão: \(error)")
                 }
             }
         }
     }
-    
+
     private func stopRecordingIfNeeded() {
         if audioRecorder?.isRecording == true {
-            print("touchUpInside")
             audioRecorder?.stop()
+            setAudioButtonRecordingState(isRecording: false)
             do { try audioSession.setActive(false) } catch { }
         }
+    }
+
+    private func setAudioButtonRecordingState(isRecording: Bool) {
+        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
+        let tintColor: UIColor = isRecording ? .systemGreen : .white
+        let image = UIImage(systemName: "microphone.fill", withConfiguration: configImage)?
+            .withTintColor(tintColor, renderingMode: .alwaysOriginal)
+
+        guard var config = audioButton.configuration else { return }
+        config.image = image
+        audioButton.configuration = config
     }
     
     @objc func playAudio(_ sender: Any) {
