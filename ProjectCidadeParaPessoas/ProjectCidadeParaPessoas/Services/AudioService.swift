@@ -23,6 +23,11 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     var audioPlayer: AVAudioPlayer?
     var audioRecorder: AVAudioRecorder?
     let audioSession = AVAudioSession.sharedInstance()
+    var onRecordingStateChanged: ((Bool) -> Void)?
+    
+    var isRecording: Bool {
+        audioRecorder?.isRecording ?? false
+    }
     
     //MARK: - This function has the purpose of managing the audio player, doing the treatment of the audio paths
     func audioInit() {
@@ -59,18 +64,6 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     }
     
     //MARK: - The following action methods will implement it to the three buttons created previously
-    @objc func recordTouchDown(_ sender: Any) {
-        startRecording()
-    }
-
-    @objc func recordTouchUpInside(_ sender: Any) {
-        stopRecordingIfNeeded()
-    }
-
-    @objc func recordTouchDragExit(_ sender: Any) {
-        stopRecordingIfNeeded()
-    }
-    
     /// record audio method
     @objc func startRecording() {
         audioSession.requestRecordPermission { [weak self] granted in
@@ -84,6 +77,7 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
                             print("Erro ao ativar sessão: \(error)")
                         }
                         self.audioRecorder?.record()
+                        self.onRecordingStateChanged?(true)
                     }
                 } else {
                     let alert = UIAlertController(title: "Permissão negada", message: "Habilite o microfone nos Ajustes.", preferredStyle: .alert)
@@ -94,10 +88,11 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     }
     
     /// stop recording if needed method
-    private func stopRecordingIfNeeded() {
+    func stopRecordingIfNeeded() {
         if audioRecorder?.isRecording == true {
             audioRecorder?.stop()
             do { try audioSession.setActive(false) } catch { }
+            onRecordingStateChanged?(false)
         }
     }
     
