@@ -1,31 +1,27 @@
 //
-//  AudioService.swift
-//  UIKitPocs
+//  ARController.swift
+//  ProjectCidadeParaPessoas
 //
-//  Created by Tamires Mendes on 31/03/26.
+//  Created by Jonas Fernando Nascimento Melo on 30/03/26.
 //
-
-/// Code Documentation
-///
-///# Initial Variables #
-/// - var audioPlayer: this variable its used to controll the audio player, from recorded audios
-/// - var audioRecorder: this variable its used to controll the processo of recording audios
-///
-/// # Notes: #
-/// 1. The AVFoundation is an import used to get and manipulate the audio file
-/// 2. AVAudioPlayerDelegate its a protocol that defines the methods to respond to audio playback events and decoding errors
-/// 3. AVAudioRecorderDelegate its the same as the previous mention, except its focus is on the audio record
-
 import UIKit
 import AVFoundation
 
-class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
+class AudioService: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
+    
+    static let shared = AudioService()
+        ....
+    
+    //MARK: - Adição de teste para botão de gravar áudio
     var audioPlayer: AVAudioPlayer?
     var audioRecorder: AVAudioRecorder?
     let audioSession = AVAudioSession.sharedInstance()
     
-    //MARK: - This function has the purpose of managing the audio player, doing the treatment of the audio paths
+    //MARK: - Teste do botão de áudio abaixo
+   // talvez ser privado
     func audioInit() {
+        /// !!! Initially, this place was used for turning the functions playButton and stopButton as false, since no audio was recorded at the beginning
+     
         /// these following 'let' - fileMgr, dirPaths, soundFileURL - looks out for the documents directory from the app and constructs a URL to a file in that location
         /// named sound.caf
         let fileMgr = FileManager.default
@@ -47,7 +43,7 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
         } catch let error as NSError {
             print("audioSession error: \(error.localizedDescription)")
         }
-
+        
         do {
             try audioRecorder = AVAudioRecorder(url: soundFileURL,
                                                 settings: recordSettings)
@@ -57,64 +53,32 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
             print("audioRecorder error: \(error.localizedDescription)")
         }
     }
-    
-    //MARK: - The following action methods will implement it to the three buttons created previously
-    @objc func recordTouchDown(_ sender: Any) {
-        startRecording()
-    }
 
-    @objc func recordTouchUpInside(_ sender: Any) {
-        stopRecordingIfNeeded()
-    }
-
-    @objc func recordTouchDragExit(_ sender: Any) {
-        stopRecordingIfNeeded()
-    }
-    
-    /// record audio method
-    @objc func startRecording() {
+    @objc func startRecording(_ sender: Any) {
         audioSession.requestRecordPermission { [weak self] granted in
             guard let self = self else { return }
+
             DispatchQueue.main.async {
-                if granted {
-                    if self.audioRecorder?.isRecording == false {
-                        do {
-                            try self.audioSession.setActive(true)
-                        } catch {
-                            print("Erro ao ativar sessão: \(error)")
-                        }
-                        self.audioRecorder?.record()
-                    }
-                } else {
-                    let alert = UIAlertController(title: "Permissão negada", message: "Habilite o microfone nos Ajustes.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                guard granted else { return }
+                guard self.audioRecorder?.isRecording == false else { return }
+
+                do {
+                    try self.audioSession.setActive(true)
+                    self.audioRecorder?.record()
+                } catch {
+                    print("Erro ao ativar sessão: \(error)")
                 }
             }
         }
     }
-    
-    /// stop recording if needed method
-    private func stopRecordingIfNeeded() {
+
+    @objc func stopRecordingIfNeeded(_ sender: Any) {
         if audioRecorder?.isRecording == true {
             audioRecorder?.stop()
             do { try audioSession.setActive(false) } catch { }
         }
     }
     
-    /// stop audio method
-    @objc func stopAudio(_ sender: Any) {
-        /// here it turned stopButton = false and all the others as true
-        
-        if audioRecorder?.isRecording == true {
-            audioRecorder?.stop()
-        } else {
-            audioPlayer?.stop()
-        }
-
-        do { try audioSession.setActive(false) } catch { }
-    }
-    
-    /// play audio method
     @objc func playAudio(_ sender: Any) {
         if audioRecorder?.isRecording == false {
             /// here it turned the stopButton and recordButton as false, and only that
@@ -124,6 +88,7 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
                 audioPlayer!.delegate = self
                 audioPlayer!.prepareToPlay()
                 audioPlayer!.play()
+                print("TOCANDO ÁUDIO")
             } catch let error as NSError {
                 print("audioPlayer error: \(error.localizedDescription)")
             }
