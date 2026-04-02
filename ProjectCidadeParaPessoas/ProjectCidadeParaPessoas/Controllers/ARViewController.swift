@@ -9,18 +9,12 @@ import UIKit
 class ARViewController: UIViewController {
     
     @objc func share(_ sender: Any) {
-         let card =  Card2(title: "asdadsdas",texto: "turn aroud everybody that......", audio: "leroleroleor")
-         let encoder = JSONEncoder()
-         let json = try? encoder.encode(card)
-         let convertedString = String(data: json ?? Data(), encoding: .utf8)
-       let url = URL(string: "card.share://profile?name=\(convertedString ?? "bleble")")
-         print(url)
-
-        // let cardObject = CardObject(json: json!)
-                 let items = [url] as [Any]
-                 let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-                 present(ac, animated: true)
-             }
+        ///TODO: receber card
+        var card =  try? Card2(title: "Cardtitle", texto: "Cardtexto", audio: "CardAudio")
+        var items = ShareService.shared.share(card: card!)
+        let ac = UIActivityViewController(activityItems: items as! [Any], applicationActivities: nil)
+        present(ac, animated: true)
+    }
     
     let custonARView: CustomARView = {
         let view = CustomARView()
@@ -109,7 +103,7 @@ class ARViewController: UIViewController {
         super.viewDidLoad()
         setupController()
     }
-
+    
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10

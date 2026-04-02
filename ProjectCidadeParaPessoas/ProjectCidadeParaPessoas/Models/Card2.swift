@@ -20,8 +20,22 @@ import SwiftUI
 
 
 nonisolated
-struct Card2: Decodable, Encodable {
+class Card2: NSObject, Decodable, Encodable{
     let title: String
     let texto: String
     let audio: String
+    
+    required init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.title = try container.decode(String.self, forKey: .title)
+        self.texto = try container.decode(String.self, forKey: .texto)
+        self.audio = try container.decode(String.self, forKey: .audio)
+        super.init()
+    }
+    
+    init(title: String, texto: String, audio: String) throws {
+        self.title = title
+        self.texto = texto
+        self.audio = audio
+    }
 }
