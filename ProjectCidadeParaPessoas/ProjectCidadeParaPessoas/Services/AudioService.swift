@@ -26,8 +26,6 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     
     //MARK: - This function has the purpose of managing the audio player, doing the treatment of the audio paths
     func audioInit() {
-        /// !!! Initially, this place was used for turning the functions playButton and stopButton as false, since no audio was recorded at the beginning
-     
         /// these following 'let' - fileMgr, dirPaths, soundFileURL - looks out for the documents directory from the app and constructs a URL to a file in that location
         /// named sound.caf
         let fileMgr = FileManager.default
@@ -49,7 +47,7 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
         } catch let error as NSError {
             print("audioSession error: \(error.localizedDescription)")
         }
-        
+
         do {
             try audioRecorder = AVAudioRecorder(url: soundFileURL,
                                                 settings: recordSettings)
@@ -85,27 +83,22 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
                         } catch {
                             print("Erro ao ativar sessão: \(error)")
                         }
-//                        self.playButton.isEnabled = false
-//                        self.stopButton.isEnabled = true
                         self.audioRecorder?.record()
                     }
                 } else {
                     let alert = UIAlertController(title: "Permissão negada", message: "Habilite o microfone nos Ajustes.", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .default))
-//                    self.present(alert, animated: true)
                 }
             }
         }
     }
     
+    /// stop recording if needed method
     private func stopRecordingIfNeeded() {
         if audioRecorder?.isRecording == true {
             audioRecorder?.stop()
             do { try audioSession.setActive(false) } catch { }
         }
-//        stopButton.isEnabled = false
-//        playButton.isEnabled = true
-//        recordButton.isEnabled = true
     }
     
     /// stop audio method
@@ -125,7 +118,6 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     @objc func playAudio(_ sender: Any) {
         if audioRecorder?.isRecording == false {
             /// here it turned the stopButton and recordButton as false, and only that
-           
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: (audioRecorder?.url)!)
                 audioPlayer?.volume = 1.0
@@ -137,23 +129,4 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
             }
         }
     }
-    
-    //MARK: - Delegate Methods
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer,
-                                     successfully flag: Bool, button: UIButton) {
-        /// recordButton = true and stopButton = false
-    }
-    
-    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        print("Audio Play Decode Error")
-    }
-    
-    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        /// playButton = true
-    }
-    
-    func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
-        print("Audio Record Encode Error")
-    }
-    
 }
