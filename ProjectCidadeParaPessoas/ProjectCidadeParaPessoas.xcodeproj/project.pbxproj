@@ -29,6 +29,11 @@
 			path = ProjectCidadeParaPessoas;
 			sourceTree = "<group>";
 		};
+		91A4A5C12F7C42C4001B956A /* ViewModels */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +53,7 @@
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
 				24A6DF722F7710520007A403 /* Products */,
 				916F8D7A2F7AEE8E00980392 /* Models */,
+				91A4A5C12F7C42C4001B956A /* ViewModels */,
 			);
 			sourceTree = "<group>";
 		};
@@ -83,6 +89,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
+				91A4A5C12F7C42C4001B956A /* ViewModels */,
 			);
 			name = ProjectCidadeParaPessoas;
 			packageProductDependencies = (

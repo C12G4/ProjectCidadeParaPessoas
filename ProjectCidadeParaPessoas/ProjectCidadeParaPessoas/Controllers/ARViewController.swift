@@ -5,9 +5,12 @@
 //  Created by Jonas Fernando Nascimento Melo on 30/03/26.
 //
 import UIKit
+import RealityKit
 
 class ARViewController: UIViewController {
-    let custonARView: CustomARView = {
+    let customARViewModel = CustomARViewModel()
+    
+    let customARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
         
@@ -79,19 +82,20 @@ class ARViewController: UIViewController {
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10
-        
+        audioButton.addTarget(nil, action: #selector(audioButtonAction), for: .allTouchEvents)
+
         //add subviews
-        view.addSubview(custonARView)
+        view.addSubview(customARView)
         view.addSubview(audioButton)
         view.addSubview(searchButton)
         view.addSubview(libraryButton)
         
         // add constrains
         NSLayoutConstraint.activate([
-            custonARView.topAnchor.constraint(equalTo: view.topAnchor),
-            custonARView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            custonARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            custonARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            customARView.topAnchor.constraint(equalTo: view.topAnchor),
+            customARView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            customARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            customARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
             audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 102.38),
             audioButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32.25),
@@ -107,5 +111,9 @@ class ARViewController: UIViewController {
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
             libraryButton.heightAnchor.constraint(equalToConstant: 52),
         ])
+    }
+    
+    @objc func audioButtonAction(){
+        customARView.scene.addAnchor(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
     }
 }
