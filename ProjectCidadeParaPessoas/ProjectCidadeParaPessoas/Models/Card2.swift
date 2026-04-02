@@ -21,6 +21,7 @@ import SwiftUI
 
 nonisolated
 struct Card2: Decodable, Encodable {
-    var title: String
+    let title: String
     let texto: String
+    let audio: String
 }

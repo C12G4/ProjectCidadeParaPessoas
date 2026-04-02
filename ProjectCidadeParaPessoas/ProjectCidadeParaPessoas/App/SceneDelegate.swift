@@ -52,13 +52,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let decoded = try? JSONDecoder().decode(Card2.self,from: name.data(using: .utf8) ?? Data())
             
 //            window.rootViewController  = SharedViewController(card: decoded?.texto ?? "\(name.data(using: .utf8) ?? Data())")
-            window.rootViewController  = SharedViewController(card: decoded ?? Card2(title: "nao chego", texto: "nao chego"))
+            window.rootViewController  = SharedViewController(card: decoded ?? Card2(title: "nao chego", texto: "nao chego",audio: "lelelelel"))
         
             
         }
         else {
-//            window?.rootViewController  = SharedViewController(text: "Banana")
-            window.rootViewController = ViewController()
+            window.rootViewController = ARViewController()
         }
     }
     }

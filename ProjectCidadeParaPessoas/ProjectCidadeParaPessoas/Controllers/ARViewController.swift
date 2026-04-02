@@ -7,6 +7,21 @@
 import UIKit
 
 class ARViewController: UIViewController {
+    
+    @objc func share(_ sender: Any) {
+         let card =  Card2(title: "asdadsdas",texto: "turn aroud everybody that......", audio: "leroleroleor")
+         let encoder = JSONEncoder()
+         let json = try? encoder.encode(card)
+         let convertedString = String(data: json ?? Data(), encoding: .utf8)
+       let url = URL(string: "card.share://profile?name=\(convertedString ?? "bleble")")
+         print(url)
+
+        // let cardObject = CardObject(json: json!)
+                 let items = [url] as [Any]
+                 let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+                 present(ac, animated: true)
+             }
+    
     let custonARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -39,6 +54,25 @@ class ARViewController: UIViewController {
         
         var configImage = UIImage.SymbolConfiguration(pointSize: 40, weight: .bold)
         let image = UIImage(systemName: "magnifyingglass", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        
+        var config = UIButton.Configuration.plain()
+        
+        config.image = image
+        config.imagePlacement = .all
+        config.background.backgroundColor = UIColor(named: "ButtonColor")
+        config.background.cornerRadius = 1000
+        config.imagePadding = 12.88
+        
+        button.configuration = config
+        return button
+    }()
+    
+    let shareButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
+        let image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         
         var config = UIButton.Configuration.plain()
         
@@ -85,6 +119,11 @@ class ARViewController: UIViewController {
         view.addSubview(audioButton)
         view.addSubview(searchButton)
         view.addSubview(libraryButton)
+        view.addSubview(shareButton)
+        
+        //target
+        
+        shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         
         // add constrains
         NSLayoutConstraint.activate([
@@ -101,11 +140,17 @@ class ARViewController: UIViewController {
             searchButton.leadingAnchor.constraint(equalTo: audioButton.trailingAnchor, constant: 32.65),
             searchButton.bottomAnchor.constraint(equalTo: audioButton.bottomAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: 78),
-            searchButton.heightAnchor.constraint(equalToConstant: 78),            
+            searchButton.heightAnchor.constraint(equalToConstant: 78),
+            
             libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
             libraryButton.heightAnchor.constraint(equalToConstant: 52),
+            
+            shareButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120.38),
+            shareButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200),
+            shareButton.widthAnchor.constraint(equalToConstant: 78),
+            shareButton.heightAnchor.constraint(equalToConstant: 78),
         ])
     }
 }
