@@ -7,6 +7,15 @@
 import UIKit
 
 class ARViewController: UIViewController {
+    
+    @objc func share(_ sender: Any) {
+        ///TODO: receber card
+        var card =  try? Card2(title: "Cardtitle", texto: "Cardtexto", audio: "CardAudio")
+        var items = ShareService.shared.share(card: card!)
+        let ac = UIActivityViewController(activityItems: items as! [Any], applicationActivities: nil)
+        present(ac, animated: true)
+    }
+    
     let custonARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -52,6 +61,25 @@ class ARViewController: UIViewController {
         return button
     }()
     
+    let shareButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
+        let image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        
+        var config = UIButton.Configuration.plain()
+        
+        config.image = image
+        config.imagePlacement = .all
+        config.background.backgroundColor = UIColor(named: "ButtonColor")
+        config.background.cornerRadius = 1000
+        config.imagePadding = 12.88
+        
+        button.configuration = config
+        return button
+    }()
+    
     let libraryButton: UIButton = {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -75,7 +103,7 @@ class ARViewController: UIViewController {
         super.viewDidLoad()
         setupController()
     }
-
+    
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10
@@ -85,6 +113,11 @@ class ARViewController: UIViewController {
         view.addSubview(audioButton)
         view.addSubview(searchButton)
         view.addSubview(libraryButton)
+        view.addSubview(shareButton)
+        
+        //target
+        
+        shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         
         // add constrains
         NSLayoutConstraint.activate([
@@ -101,11 +134,17 @@ class ARViewController: UIViewController {
             searchButton.leadingAnchor.constraint(equalTo: audioButton.trailingAnchor, constant: 32.65),
             searchButton.bottomAnchor.constraint(equalTo: audioButton.bottomAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: 78),
-            searchButton.heightAnchor.constraint(equalToConstant: 78),            
+            searchButton.heightAnchor.constraint(equalToConstant: 78),
+            
             libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
             libraryButton.heightAnchor.constraint(equalToConstant: 52),
+            
+            shareButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120.38),
+            shareButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200),
+            shareButton.widthAnchor.constraint(equalToConstant: 78),
+            shareButton.heightAnchor.constraint(equalToConstant: 78),
         ])
     }
 }
