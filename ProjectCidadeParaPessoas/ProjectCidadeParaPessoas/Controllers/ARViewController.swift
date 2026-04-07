@@ -8,6 +8,7 @@ import UIKit
 import RealityKit
 
 class ARViewController: UIViewController {
+    let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
     
     let customARView: CustomARView = {
@@ -96,17 +97,24 @@ class ARViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
+        audioService.audioInit()
+        audioService.onRecordingStateChanged = { [weak self] isRecording in
+            DispatchQueue.main.async {
+                self?.setAudioButtonRecordingState(isRecording: isRecording)
+            }
+        }
+        setAudioButtonRecordingState(isRecording: false)
     }
     
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10
-        audioButton.addTarget(nil, action: #selector(audioButtonAction), for: .allTouchEvents)
-
         //add subviews
         view.addSubview(customARView)
         view.addSubview(audioButton)
         view.addSubview(searchButton)
+        view.addSubview(audioButton)
+        
         view.addSubview(libraryButton)
         view.addSubview(shareButton)
         
@@ -114,6 +122,15 @@ class ARViewController: UIViewController {
         
         shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         
+        // addTarget
+        searchButton.addTarget(self, action: #selector(playAudio(_:)), for: .touchUpInside)
+        
+        audioButton.addTarget(self, action: #selector(recordTouchDown(_:)), for: .touchDown)
+        audioButton.addTarget(self, action: #selector(recordTouchUpInside(_:)), for: .touchUpInside)
+        audioButton.addTarget(self, action: #selector(recordTouchUpOutside(_:)), for: .touchUpOutside)
+        audioButton.addTarget(self, action: #selector(recordTouchDragExit(_:)), for: .touchDragExit)
+        audioButton.addTarget(self, action: #selector(recordTouchCancel(_:)), for: .touchCancel)
+    
         // add constrains
         NSLayoutConstraint.activate([
             customARView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -130,7 +147,7 @@ class ARViewController: UIViewController {
             searchButton.bottomAnchor.constraint(equalTo: audioButton.bottomAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: 78),
             searchButton.heightAnchor.constraint(equalToConstant: 78),
-            
+
             libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
@@ -143,7 +160,47 @@ class ARViewController: UIViewController {
         ])
     }
     
-    @objc func audioButtonAction(){
+    @objc func recordTouchDown(_ sender: Any) {
+        audioService.startRecording()
+    }
+
+    @objc func recordTouchUpInside(_ sender: Any) {
+        audioService.stopRecordingIfNeeded()
+        creatARObj()
+    }
+
+    @objc func recordTouchUpOutside(_ sender: Any) {
+        audioService.stopRecordingIfNeeded()
+        creatARObj()
+
+    }
+
+    @objc func recordTouchDragExit(_ sender: Any) {
+        audioService.stopRecordingIfNeeded()
+        creatARObj()
+
+    }
+
+    @objc func recordTouchCancel(_ sender: Any) {
+        audioService.stopRecordingIfNeeded()
+        creatARObj()
+    }
+
+    private func setAudioButtonRecordingState(isRecording: Bool) {
+        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
+        let tintColor: UIColor = isRecording ? .systemGreen : .white
+        let image = UIImage(systemName: "microphone.fill", withConfiguration: configImage)?
+            .withTintColor(tintColor, renderingMode: .alwaysOriginal)
+
+        guard var config = audioButton.configuration else { return }
+        config.image = image
+        audioButton.configuration = config
+    }
+    
+    @objc func playAudio(_ sender: Any) {
+        audioService.playAudio(sender)
+    }
+    func creatARObj(){
         customARView.scene.addAnchor(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
     }
     

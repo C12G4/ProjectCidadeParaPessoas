@@ -29,11 +29,6 @@
 			path = ProjectCidadeParaPessoas;
 			sourceTree = "<group>";
 		};
-		91A4A5C12F7C42C4001B956A /* ViewModels */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,8 +47,6 @@
 			children = (
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
 				24A6DF722F7710520007A403 /* Products */,
-				916F8D7A2F7AEE8E00980392 /* Models */,
-				91A4A5C12F7C42C4001B956A /* ViewModels */,
 			);
 			sourceTree = "<group>";
 		};
@@ -63,13 +56,6 @@
 				24A6DF712F7710520007A403 /* ProjectCidadeParaPessoas.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		916F8D7A2F7AEE8E00980392 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -89,7 +75,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
-				91A4A5C12F7C42C4001B956A /* ViewModels */,
 			);
 			name = ProjectCidadeParaPessoas;
 			packageProductDependencies = (
@@ -160,10 +145,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 32M6C7GWMQ;
+				DEVELOPMENT_TEAM = WCMF6L9F9U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "esse app requer mic";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -196,10 +182,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 32M6C7GWMQ;
+				DEVELOPMENT_TEAM = WCMF6L9F9U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "esse app requer mic";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
