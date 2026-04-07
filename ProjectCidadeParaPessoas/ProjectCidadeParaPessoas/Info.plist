@@ -2,20 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
-	<key>NSCameraUsageDescription</key>
-	<string></string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>card</string>
+			<string>A test person </string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.ProjectCidadeParaPessoas.card</string>
+				<string>com.testApp.person</string>
 			</array>
 		</dict>
 	</array>
@@ -62,15 +58,48 @@
 				<string>Codable</string>
 				<string>public.json</string>
 				<string>Decodable</string>
+				<string>public.content</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>card</string>
+			<string>A test person </string>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
-			<string>com.ProjectCidadeParaPessoas.card</string>
+			<string>com.testApp.person</string>
 			<key>UTTypeTagSpecification</key>
-			<dict/>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>com.testApp.person</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+				<string>Sendable</string>
+				<string>Codable</string>
+				<string>public.json</string>
+				<string>Decodable</string>
+				<string>public.content</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>A test person </string>
+			<key>UTTypeIconFiles</key>
+			<array/>
+			<key>UTTypeIdentifier</key>
+			<string>com.testApp.person</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>com.testApp.person</string>
+				</array>
+			</dict>
 		</dict>
 	</array>
 </dict>

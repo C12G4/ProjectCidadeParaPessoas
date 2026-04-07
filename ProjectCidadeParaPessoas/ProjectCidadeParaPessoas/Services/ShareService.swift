@@ -6,8 +6,8 @@
 //
 
 import UIKit
-
 //transformar em service e singleton-enviroment
+
 
 final class ShareService {
     
