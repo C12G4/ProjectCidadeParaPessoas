@@ -96,19 +96,6 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
         }
     }
     
-    /// stop audio method
-    @objc func stopAudio(_ sender: Any) {
-        /// here it turned stopButton = false and all the others as true
-        
-        if audioRecorder?.isRecording == true {
-            audioRecorder?.stop()
-        } else {
-            audioPlayer?.stop()
-        }
-
-        do { try audioSession.setActive(false) } catch { }
-    }
-    
     /// play audio method
     @objc func playAudio(_ sender: Any) {
         if audioRecorder?.isRecording == false {
