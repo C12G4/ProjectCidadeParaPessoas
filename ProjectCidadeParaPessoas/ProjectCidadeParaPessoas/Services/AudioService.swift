@@ -111,4 +111,8 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
             }
         }
     }
+    
+    func getAudioFileURL() -> URL? {
+        return audioRecorder?.url
+    }
 }
