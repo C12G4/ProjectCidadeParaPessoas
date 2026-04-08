@@ -148,11 +148,9 @@ class ARViewController: UIViewController {
     }
     
     @objc func share(_ sender: Any) {
-        ///TODO: receber card
-        var card =  try? Card2(title: "Cardtitle", texto: "Cardtexto", audio: "CardAudio")
-        //var items = ShareService.shared.share(card: card!)
-        let items = PersonObject(person: Person(name: "ac=bacate", id: UUID()))
-//        let items = Person(name: "abacate", id: UUID())
+        
+        let items = PersonObject(person: Person(name: "asd", id: UUID(), lat: 0.0, longe: 0.0, audio: "AUDIO"))
+
         let ac = UIActivityViewController(activityItems: [items] as! [Any], applicationActivities: nil)
         present(ac, animated: true)
     }

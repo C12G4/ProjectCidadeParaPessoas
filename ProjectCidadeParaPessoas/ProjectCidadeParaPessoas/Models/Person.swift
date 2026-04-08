@@ -20,7 +20,9 @@ import UniformTypeIdentifiers
 struct Person: Decodable, Encodable {
     let name: String
     let id: UUID
-    
+    let lat: Double
+    let longe: Double
+    let audio: String
 }
 
 extension UTType {
@@ -28,13 +30,19 @@ extension UTType {
 }
 
 class PersonObject: NSObject, Encodable, Decodable{
-
+    
     let name: String
     let id: UUID
+    let lat: Double
+    let longe: Double
+    let audio: String
     
     init(person: Person) {
         self.name = person.name
         self.id = person.id
+        self.lat = person.lat
+        self.longe = person.longe
+        self.audio = person.audio
     }
 }
 
