@@ -95,7 +95,7 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
             audioRecorder?.stop()
             do { try audioSession.setActive(false) } catch { }
             onRecordingStateChanged?(false)
-            coreDataController.createCard(name: "abacate", id: UUID(), lat: 0, longe: 0, audio: "audio")
+            coreDataController.createCard(name: "abacate", id: UUID(), lat: 0, longe: 0, audio: audioRecorder?.url.absoluteString ?? "não veio")
         }
     }
     

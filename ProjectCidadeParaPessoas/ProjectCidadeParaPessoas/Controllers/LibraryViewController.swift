@@ -10,6 +10,8 @@ import UIKit
 class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let audioService: AudioService
     var audioURL: URL?
+    var coreDataController = CoreDataController()
+    var audios = [URL]()
     
     let tableView: UITableView = {
         let table = UITableView()
@@ -41,7 +43,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         view.backgroundColor = .systemGray5
         setupUI()
-        loadAudioFile()
+        loadAllAudios()
     }
     
     func setupUI() {
@@ -62,8 +64,18 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         ])
     }
     
-    func loadAudioFile() {
-        audioURL = audioService.getAudioFileURL()
+    func loadAllAudios(){
+        var cards = coreDataController.getCards()
+        for card in cards{
+            audios.append(URL(string: card.audio ?? "")!)
+        }
+        loadAudioFile(audioURL2: audios)
+    }
+    
+    func loadAudioFile(audioURL2: [URL]) {
+        //RESOLVER
+        
+        audioURL = audioURL2
         tableView.reloadData()
     }
     
