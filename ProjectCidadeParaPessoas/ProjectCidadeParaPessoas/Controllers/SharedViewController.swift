@@ -17,10 +17,10 @@ import UIKit
 
 class SharedViewController: UIViewController {
     
-    let card: Card2
+    let person: PersonObject
     
-    init(card: Card2) {
-        self.card = card
+    init(card: PersonObject) {
+        self.person = card
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -49,17 +49,12 @@ class SharedViewController: UIViewController {
         
         view.addSubview(label)
         view.addSubview(label2)
-        label.text = card.texto
-        label2.text = card.title
+        label.text = person.name
         
         NSLayoutConstraint.activate([
             label.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
             label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             label.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            label2.topAnchor.constraint(equalTo: label.topAnchor, constant: 20),
-            label2.centerXAnchor.constraint(equalTo: label.centerXAnchor),
-            label2.bottomAnchor.constraint(equalTo: label.bottomAnchor)
         ])
     }
 }

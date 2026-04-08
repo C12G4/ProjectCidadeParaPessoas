@@ -34,7 +34,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let url = urlContext.url
             // Handle the URL here
             //handleDeepLink(url)
-            guard let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("card.share") == .orderedSame else {
+            guard let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("com.testApp.person") == .orderedSame else {
                 return
             }
             
@@ -48,10 +48,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 return
             }
             //o decode ta errado
-            let decoded = try? JSONDecoder().decode(Card2.self,from: name.data(using: .utf8) ?? Data())
+            let decoded = try? JSONDecoder().decode(PersonObject.self,from: name.data(using: .utf8) ?? Data())
             
 //            window.rootViewController  = SharedViewController(card: decoded?.texto ?? "\(name.data(using: .utf8) ?? Data())")
-            window.rootViewController  = try? SharedViewController(card: decoded ?? Card2(title: "CardFalhaTexto", texto: "CardFalhaTexto",audio: "CardFalhaTexto"))
+            window.rootViewController  = try? SharedViewController(card: decoded ?? PersonObject(person: Person(name: "nao", id: UUID())))
         
             
         }

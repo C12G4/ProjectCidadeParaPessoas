@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		249B93C32F86E03D00C6F8E2 /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 249B93C12F86E03D00C6F8E2 /* CoreDataModel.xcdatamodeld */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		249B93C22F86E03D00C6F8E2 /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 		24A6DF712F7710520007A403 /* ProjectCidadeParaPessoas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProjectCidadeParaPessoas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -45,6 +50,7 @@
 		24A6DF682F7710520007A403 = {
 			isa = PBXGroup;
 			children = (
+				249B93C12F86E03D00C6F8E2 /* CoreDataModel.xcdatamodeld */,
 				24A6DF732F7710520007A403 /* ProjectCidadeParaPessoas */,
 				24A6DF722F7710520007A403 /* Products */,
 			);
@@ -132,6 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				249B93C32F86E03D00C6F8E2 /* CoreDataModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,6 +366,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		249B93C12F86E03D00C6F8E2 /* CoreDataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				249B93C22F86E03D00C6F8E2 /* CoreDataModel.xcdatamodel */,
+			);
+			currentVersion = 249B93C22F86E03D00C6F8E2 /* CoreDataModel.xcdatamodel */;
+			path = CoreDataModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 24A6DF692F7710520007A403 /* Project object */;
 }
