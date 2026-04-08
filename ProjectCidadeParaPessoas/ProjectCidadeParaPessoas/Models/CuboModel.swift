@@ -58,7 +58,7 @@ extension PersonObject: UIActivityItemSource {
     }
     
     func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
-        return "Sharing Person: \(name)"
+        return "Sharing Card: \(name)"
     }
     
     func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
