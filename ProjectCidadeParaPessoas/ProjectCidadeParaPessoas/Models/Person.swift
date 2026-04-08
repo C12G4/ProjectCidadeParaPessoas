@@ -14,41 +14,46 @@
 ////  Created by Vinicius Alves Marques on 22/10/25.
 ////
 //
-//import UIKit
-//import UniformTypeIdentifiers
-//import CoreTransferable
-//
-//
-//nonisolated
-//struct Person: Decodable, Encodable {
-//    let name: String
-//    let id: UUID
-//}
-//
-//extension UTType {
-//    static var personType: UTType = .init(exportedAs: "com.testApp.person")
-//}
-//
-//extension Person: @preconcurrency Transferable {
-//    static var transferRepresentation: some TransferRepresentation {
-//        CodableRepresentation(contentType: .personType)
-//        DataRepresentation(importedContentType: .personType) { data in
-//            let person = try JSONDecoder().decode(Person.self, from: data)
-//            return person
-//        }
-//        DataRepresentation(exportedContentType: .personType) { person in
-//            let data = try JSONEncoder().encode(person)
-//            return data
-//        }
-//        FileRepresentation(contentType: .personType) { person in
-//            let docsURL = URL.temporaryDirectory.appendingPathComponent("\(person.name)\(UUID().uuidString)", conformingTo: await .personType)
-//            let data = try JSONEncoder().encode(person)
-//            try data.write(to: docsURL)
-//            return SentTransferredFile(docsURL)
-//        } importing: { received in
-//            let data = try Data(contentsOf: received.file)
-//            let person = try JSONDecoder().decode(Person.self, from: data)
-//            return person
-//        }
-//    }
-//}
+import UIKit
+import UniformTypeIdentifiers
+
+struct Person: Decodable, Encodable {
+    let name: String
+    let id: UUID
+    
+}
+
+extension UTType {
+    static var personType: UTType = .init(exportedAs: "com.testApp.person")
+}
+
+class PersonObject: NSObject, Encodable, Decodable{
+
+    let name: String
+    let id: UUID
+    
+    init(person: Person) {
+        self.name = person.name
+        self.id = person.id
+    }
+}
+
+extension PersonObject: UIActivityItemSource {
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return name
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        let encoder = JSONEncoder()
+        let jsonData = try? encoder.encode(self)
+        return jsonData
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
+        return "Sharing Person: \(name)"
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
+        return UTType.personType.identifier
+    }
+}
