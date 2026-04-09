@@ -9,6 +9,7 @@ import UIKit
 import RealityKit
 import ARKit
 import Foundation
+import SwiftUI
 
 class CustomARViewModel {
     private var initialLocation = CLLocation()
@@ -24,16 +25,19 @@ class CustomARViewModel {
 
     init() {
         initialLocation = geoService.getActualLocation()
+        
     }
     
-    func creatObj(color: UIColor, cameraTransform: Transform) -> AnchorEntity{
+    func creatObj(color: UIColor,arView: ARView) -> AnchorEntity{
         let object = MeshResource.generateBox(size: 0.1)
         let material = SimpleMaterial(color: color, isMetallic: false)
         let entity = ModelEntity(mesh: object, materials: [material])
 
-        entity.position.x = cameraTransform.translation.x
+        entity.position.x = arView.cameraTransform.translation.x
         entity.position.y = 0
-        entity.position.z = cameraTransform.translation.z
+        entity.position.z = arView.cameraTransform.translation.x
+        entity.generateCollisionShapes(recursive: true)
+        
         anchor.addChild(entity)
         
         return anchor

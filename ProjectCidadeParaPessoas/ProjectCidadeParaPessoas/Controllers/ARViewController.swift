@@ -109,6 +109,9 @@ class ARViewController: UIViewController {
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10
+        let tapGesture = UITapGestureRecognizer(target: customARView,
+                                                action: #selector(customARView.handleTap))
+        customARView.addGestureRecognizer(tapGesture)
         //add subviews
         view.addSubview(customARView)
         view.addSubview(audioButton)
@@ -119,7 +122,6 @@ class ARViewController: UIViewController {
         view.addSubview(shareButton)
         
         //target
-        
         shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         
         // addTarget
@@ -201,7 +203,7 @@ class ARViewController: UIViewController {
         audioService.playAudio(sender)
     }
     func creatARObj(){
-        customARView.scene.addAnchor(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
+        customARView.scene.addAnchor(customARViewModel.creatObj(color: .purple, arView : customARView))
     }
     
     @objc func share(_ sender: Any) {
