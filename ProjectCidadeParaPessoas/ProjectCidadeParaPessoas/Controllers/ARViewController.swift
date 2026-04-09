@@ -140,7 +140,7 @@ class ARViewController: UIViewController {
             customARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             customARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 102.38),
+            audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 101.38),
             audioButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32.25),
             audioButton.widthAnchor.constraint(equalToConstant: 78),
             audioButton.heightAnchor.constraint(equalToConstant: 78),
