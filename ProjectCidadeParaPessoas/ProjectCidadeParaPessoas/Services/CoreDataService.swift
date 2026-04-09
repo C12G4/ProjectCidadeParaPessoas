@@ -1,27 +1,71 @@
 //
-//  CoreDataService.swift
+//  CoreDataController.swift
 //  ProjectCidadeParaPessoas
 //
 //  Created by Vinicius Marques on 08/04/26.
 //
 
+import Foundation
 import CoreData
-internal import Combine
+import Combine
 
-class ContentViewModel: ObservableObject{
+class CoreDataService: ObservableObject{
     
-    @Published var cards: [Card] = []
+    static let shared = CoreDataService()
     
-    func getCards(){
-        cards = CoreDataController.shared.fetchAllCards()
+    let persistentContainer: NSPersistentContainer
+    var viewContext: NSManagedObjectContext{
+        persistentContainer.viewContext
     }
     
-    func createCard(name: String, id: UUID, lat: Double, longe: Double, audio: String){
-        let result = CoreDataController.shared.createCard(name: name, id: id, lat: lat, longe: longe, audio: audio)
-        self.cards.append(result)
+    private init(){
+        persistentContainer = NSPersistentContainer(name: "CoreDataModel")
+        
+        persistentContainer.loadPersistentStores{ _, error in
+            if let error = error{
+                fatalError("Could not load CoreData stack: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func saveContext(){
+        if viewContext.hasChanges{
+            do{
+                try viewContext.save()
+            } catch {
+                print("Error saving context: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func createCard(name: String, id: UUID, lat: Double, longe: Double, audio: String) -> Card{
+        
+        let card = Card(context: viewContext)
+        
+        card.id = UUID()
+        card.name = name
+        card.lat = lat
+        card.longe = longe
+        card.audio = audio
+        saveContext()
+        return card
+    }
+    
+    func fetchAllCards() -> [Card] {
+        let fetchRequest: NSFetchRequest<Card> = Card.fetchRequest()
+        
+        do{
+            let result = try viewContext.fetch(fetchRequest)
+            saveContext()
+            return result
+        } catch {
+            print("Error fetching Books: \(error.localizedDescription)")
+            return[]
+        }
     }
     
     func deleteCard(_ card: Card){
-        CoreDataController.shared.deleteCard(card)
+        viewContext.delete(card)
+        saveContext()
     }
 }
