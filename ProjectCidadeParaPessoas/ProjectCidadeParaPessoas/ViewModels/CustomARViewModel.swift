@@ -21,10 +21,10 @@ class CustomARViewModel {
     var count = 0.0
     
     let anchor = AnchorEntity(world: .zero)
-
-    init() {
-        initialLocation = geoService.getActualLocation()
-    }
+//
+//    init() {
+//        initialLocation = geoService.getActualLocation()
+//    }
     
     func creatObj(color: UIColor, cameraTransform: Transform) -> AnchorEntity{
         let object = MeshResource.generateBox(size: 0.1)
@@ -63,7 +63,7 @@ class CustomARViewModel {
     }
     
     private func updateActualLocation(){
-        actualLocation = geoService.getActualLocation()
+        actualLocation = geoService.getActualLocation()!
     }
     
     func rosaDosVentos(){

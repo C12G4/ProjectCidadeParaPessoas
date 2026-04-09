@@ -51,7 +51,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let decoded = try? JSONDecoder().decode(PersonObject.self,from: name.data(using: .utf8) ?? Data())
             
 //            window.rootViewController  = SharedViewController(card: decoded?.texto ?? "\(name.data(using: .utf8) ?? Data())")
-            window.rootViewController  = try? SharedViewController(card: decoded ?? PersonObject(person: Person(name: "nao", id: UUID())))
         
             
         }
