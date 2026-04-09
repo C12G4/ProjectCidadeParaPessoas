@@ -13,7 +13,16 @@ class ARViewController: UIViewController {
     let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
     let geoService = GeoSerive()
-    
+
+    private let recordingSavedView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor.systemGray4.withAlphaComponent(0.95)
+        view.layer.cornerRadius = 32
+        view.alpha = 0
+        return view
+    }()
+
     let customARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -122,7 +131,8 @@ class ARViewController: UIViewController {
         
         view.addSubview(libraryButton)
         view.addSubview(shareButton)
-        
+        view.addSubview(recordingSavedView)
+
         //target
         shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         libraryButton.addTarget(self, action: #selector(openLibrary(_:)), for: .touchUpInside)
@@ -133,7 +143,6 @@ class ARViewController: UIViewController {
         audioButton.addTarget(self, action: #selector(recordTouchDown(_:)), for: .touchDown)
         audioButton.addTarget(self, action: #selector(recordTouchUpInside(_:)), for: .touchUpInside)
         audioButton.addTarget(self, action: #selector(recordTouchUpOutside(_:)), for: .touchUpOutside)
-        audioButton.addTarget(self, action: #selector(recordTouchDragExit(_:)), for: .touchDragExit)
         audioButton.addTarget(self, action: #selector(recordTouchCancel(_:)), for: .touchCancel)
     
         // add constrains
@@ -156,8 +165,13 @@ class ARViewController: UIViewController {
             libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
-            libraryButton.heightAnchor.constraint(equalToConstant: 52),
-            
+            libraryButton.heightAnchor.constraint(equalToConstant: 52),            
+
+            recordingSavedView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            recordingSavedView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            recordingSavedView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -8),
+            recordingSavedView.heightAnchor.constraint(equalToConstant: 24),
+
             shareButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             shareButton.trailingAnchor.constraint(equalTo: view.leadingAnchor, constant: 82),
             shareButton.widthAnchor.constraint(equalToConstant: 52),
@@ -175,12 +189,6 @@ class ARViewController: UIViewController {
     }
 
     @objc func recordTouchUpOutside(_ sender: Any) {
-        audioService.stopRecordingIfNeeded()
-        creatARObj()
-
-    }
-
-    @objc func recordTouchDragExit(_ sender: Any) {
         audioService.stopRecordingIfNeeded()
         creatARObj()
 
@@ -217,6 +225,29 @@ class ARViewController: UIViewController {
                 longe: location.coordinate.longitude,
                 audio: audioPath
             )
+            showRecordingSavedFeedback()
+        }
+    }
+
+    private func showRecordingSavedFeedback() {
+        recordingSavedView.layer.removeAllAnimations()
+        recordingSavedView.alpha = 1
+
+        let bounce = CAKeyframeAnimation(keyPath: "transform.translation.y")
+        // O primeiro valor é o quando ele fica fora da tela e quanto maior mais "forte" ele sobe
+        // Os valores negativos deixam o bounce mais suave
+        bounce.values = [18, -3, 0, -1, 0, 18]
+        bounce.keyTimes = [0, 0.35, 0.55, 0.7, 0.82, 1]
+        bounce.duration = 0.55
+        bounce.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        bounce.fillMode = .forwards
+        bounce.isRemovedOnCompletion = false
+        recordingSavedView.layer.add(bounce, forKey: "recordingSavedBounce")
+
+        UIView.animate(withDuration: 0.18, delay: 0.57, options: [.curveEaseOut]) {
+            self.recordingSavedView.alpha = 0
+        } completion: { _ in
+            self.recordingSavedView.layer.removeAnimation(forKey: "recordingSavedBounce")
         }
     }
     
