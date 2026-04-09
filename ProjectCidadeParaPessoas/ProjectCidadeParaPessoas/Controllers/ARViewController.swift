@@ -7,10 +7,12 @@
 
 import UIKit
 import RealityKit
+import CoreLocation
 
 class ARViewController: UIViewController {
     let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
+    let geoService = GeoSerive()
     
     let customARView: CustomARView = {
         let view = CustomARView()
@@ -110,17 +112,18 @@ class ARViewController: UIViewController {
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10
+        let tapGesture = UITapGestureRecognizer(target: customARView,
+                                                action: #selector(customARView.handleTap))
+        customARView.addGestureRecognizer(tapGesture)
         //add subviews
         view.addSubview(customARView)
         view.addSubview(audioButton)
         view.addSubview(searchButton)
-        view.addSubview(audioButton)
         
         view.addSubview(libraryButton)
         view.addSubview(shareButton)
         
         //target
-        
         shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         libraryButton.addTarget(self, action: #selector(openLibrary(_:)), for: .touchUpInside)
         
@@ -202,8 +205,19 @@ class ARViewController: UIViewController {
     @objc func playAudio(_ sender: Any) {
         audioService.playAudio(sender)
     }
-    func creatARObj(){
-        customARView.scene.addAnchor(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
+    func creatARObj() {
+        customARView.scene.addAnchor(customARViewModel.creatObj(color: .purple, arView : customARView))
+        
+        if let audioPath = audioService.getAudioFilePath() {
+            let location = geoService.locationManager.location ?? CLLocation(latitude: 0, longitude: 0)
+            _ = CoreDataService.shared.createCard(
+                name: "Audio \(Date().formatted(date: .abbreviated, time: .shortened))",
+                id: UUID(),
+                lat: location.coordinate.latitude,
+                longe: location.coordinate.longitude,
+                audio: audioPath
+            )
+        }
     }
     
     @objc func share(_ sender: Any) {

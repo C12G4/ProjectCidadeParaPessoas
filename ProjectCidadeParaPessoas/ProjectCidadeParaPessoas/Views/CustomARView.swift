@@ -25,4 +25,13 @@ class CustomARView: ARView {
         configuration.worldAlignment = .gravityAndHeading
         session.run(configuration)
     }
+    
+    @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
+        let arView = self
+        let tapLocation = recognizer.location(in: arView)
+        
+        if let entity = arView.entity(at: tapLocation) as? ModelEntity {
+            print("bloco")
+        }
+    }
 }
