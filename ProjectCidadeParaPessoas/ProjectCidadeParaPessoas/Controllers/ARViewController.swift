@@ -13,7 +13,16 @@ class ARViewController: UIViewController {
     let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
     let geoService = GeoSerive()
-    
+
+    private let recordingSavedView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor.systemGray4.withAlphaComponent(0.95)
+        view.layer.cornerRadius = 32
+        view.alpha = 0
+        return view
+    }()
+
     let customARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -122,7 +131,8 @@ class ARViewController: UIViewController {
         
         view.addSubview(libraryButton)
         view.addSubview(shareButton)
-        
+        view.addSubview(recordingSavedView)
+
         //target
         shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         libraryButton.addTarget(self, action: #selector(openLibrary(_:)), for: .touchUpInside)
@@ -161,6 +171,11 @@ class ARViewController: UIViewController {
             shareButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200),
             shareButton.widthAnchor.constraint(equalToConstant: 78),
             shareButton.heightAnchor.constraint(equalToConstant: 78),
+
+            recordingSavedView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            recordingSavedView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            recordingSavedView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -8),
+            recordingSavedView.heightAnchor.constraint(equalToConstant: 24),
         ])
     }
     
@@ -210,6 +225,23 @@ class ARViewController: UIViewController {
                 longe: location.coordinate.longitude,
                 audio: audioPath
             )
+            showRecordingSavedFeedback()
+        }
+    }
+
+    private func showRecordingSavedFeedback() {
+        recordingSavedView.layer.removeAllAnimations()
+        recordingSavedView.alpha = 1
+
+        let bounce = CAKeyframeAnimation(keyPath: "transform.translation.y")
+        bounce.values = [18, -3, 0, -1, 0]
+        bounce.keyTimes = [0, 0.5, 0.75, 0.9, 1]
+        bounce.duration = 0.36
+        bounce.timingFunction = CAMediaTimingFunction(name: .default)
+        recordingSavedView.layer.add(bounce, forKey: "recordingSavedBounce")
+
+        UIView.animate(withDuration: 0.2, delay: 0.65, options: [.curveEaseIn]) {
+            self.recordingSavedView.alpha = 0
         }
     }
     
