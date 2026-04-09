@@ -133,7 +133,6 @@ class ARViewController: UIViewController {
         audioButton.addTarget(self, action: #selector(recordTouchDown(_:)), for: .touchDown)
         audioButton.addTarget(self, action: #selector(recordTouchUpInside(_:)), for: .touchUpInside)
         audioButton.addTarget(self, action: #selector(recordTouchUpOutside(_:)), for: .touchUpOutside)
-        audioButton.addTarget(self, action: #selector(recordTouchDragExit(_:)), for: .touchDragExit)
         audioButton.addTarget(self, action: #selector(recordTouchCancel(_:)), for: .touchCancel)
     
         // add constrains
@@ -175,12 +174,6 @@ class ARViewController: UIViewController {
     }
 
     @objc func recordTouchUpOutside(_ sender: Any) {
-        audioService.stopRecordingIfNeeded()
-        creatARObj()
-
-    }
-
-    @objc func recordTouchDragExit(_ sender: Any) {
         audioService.stopRecordingIfNeeded()
         creatARObj()
 
