@@ -72,7 +72,7 @@ class ARViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         
-        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
+        let configImage = UIImage.SymbolConfiguration(pointSize: 20)
         let image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         
         var config = UIButton.Configuration.plain()
@@ -152,7 +152,7 @@ class ARViewController: UIViewController {
             customARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             customARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 102.38),
+            audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 101.38),
             audioButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32.25),
             audioButton.widthAnchor.constraint(equalToConstant: 78),
             audioButton.heightAnchor.constraint(equalToConstant: 78),
@@ -165,17 +165,17 @@ class ARViewController: UIViewController {
             libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
-            libraryButton.heightAnchor.constraint(equalToConstant: 52),
-            
-            shareButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120.38),
-            shareButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200),
-            shareButton.widthAnchor.constraint(equalToConstant: 78),
-            shareButton.heightAnchor.constraint(equalToConstant: 78),
+            libraryButton.heightAnchor.constraint(equalToConstant: 52),            
 
             recordingSavedView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             recordingSavedView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             recordingSavedView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -8),
             recordingSavedView.heightAnchor.constraint(equalToConstant: 24),
+
+            shareButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
+            shareButton.trailingAnchor.constraint(equalTo: view.leadingAnchor, constant: 82),
+            shareButton.widthAnchor.constraint(equalToConstant: 52),
+            shareButton.heightAnchor.constraint(equalToConstant: 52),
         ])
     }
     
