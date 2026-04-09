@@ -31,36 +31,34 @@ class CustomARViewModel {
         let material = SimpleMaterial(color: color, isMetallic: false)
         let entity = ModelEntity(mesh: object, materials: [material])
 
-        entity.position.x = cameraTransform.translation.x
+        let position = gpsToSIMD3()
+        entity.position.x = position.x
         entity.position.y = 0
-        entity.position.z = cameraTransform.translation.z
+        entity.position.z = position.z
         anchor.addChild(entity)
         
         return anchor
     }
     
     private func gpsToSIMD3() -> SIMD3<Float> {
-//        let radius = 6378.137
-        
-        let longitudeA = initialLocation.coordinate.longitude * Double.pi / 180.0
-        let latitudeA = initialLocation.coordinate.latitude * Double.pi / 180.0
-        
-        let longitudeB = actualLocation.coordinate.longitude * Double.pi / 180.0
-        let latitudeB = actualLocation.coordinate.latitude * Double.pi / 180.0
-        
-        let xA = cos(latitudeA) * cos(longitudeA)
-//        let zA = sin(latitudeA)
-        let zA = cos(latitudeA) * sin(longitudeA)
-        
-        let xB = cos(latitudeB) * cos(longitudeB)
-//        let zB = sin(latitudeB)
-        let zB = cos(latitudeB) * sin(longitudeB)
-
-        let x = xB - xA
-        let z = zB - zA
-        
-        return SIMD3<Float>(Float(x), Float(count), Float(z))
-    }
+            let radius = 6371.0
+            
+            let lon1 = initialLocation.coordinate.longitude * Double.pi / 180.0
+            let lat1 = initialLocation.coordinate.latitude * Double.pi / 180.0
+            
+            let lon2 = actualLocation.coordinate.longitude * Double.pi / 180.0
+            let lat2 = actualLocation.coordinate.latitude * Double.pi / 180.0
+            
+            let dLat = (actualLocation.coordinate.latitude - initialLocation.coordinate.latitude) * Double.pi / 180.0
+            let dLon = (actualLocation.coordinate.longitude - initialLocation.coordinate.longitude) * Double.pi / 180.0
+            
+            let a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) * sin(dLon/2) * sin(dLon/2)
+            let c = 2 * atan2(sqrt(a), sqrt(1-a))
+            let z = sqrt(a)
+            let d = radius * c
+            
+            return SIMD3<Float>(Float(0), Float(count), Float(z))
+        }
     
     private func updateActualLocation(){
         actualLocation = geoService.getActualLocation()

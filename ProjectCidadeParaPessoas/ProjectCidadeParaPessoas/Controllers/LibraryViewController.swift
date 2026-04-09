@@ -75,7 +75,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func loadAudioFile(audioURL2: [URL]) {
         //RESOLVER
         
-        audioURL = audioURL2
+//        audioURL = audioURL2
         tableView.reloadData()
     }
     
