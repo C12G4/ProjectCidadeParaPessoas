@@ -16,8 +16,10 @@
 //
 import UIKit
 import UniformTypeIdentifiers
+import CoreTransferable
 
-struct Person: Decodable, Encodable {
+nonisolated
+struct Person: Decodable, Encodable, Sendable {
     let name: String
     let id: UUID
     let lat: Double
@@ -26,7 +28,7 @@ struct Person: Decodable, Encodable {
 }
 
 extension UTType {
-    static var personType: UTType = .init(exportedAs: "com.testApp.person")
+    public static let personType: UTType = .init(exportedAs: "com.testApp.person")
 }
 
 class PersonObject: NSObject, Encodable, Decodable{
@@ -63,5 +65,30 @@ extension PersonObject: UIActivityItemSource {
     
     func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
         return UTType.personType.identifier
+    }
+}
+
+extension Person:@preconcurrency Transferable {
+    @available(iOS 16.0, *)
+    static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: .personType)
+        DataRepresentation(importedContentType: .personType) { data in
+            let person = try JSONDecoder().decode(Person.self, from: data)
+            return person
+        }
+        DataRepresentation(exportedContentType: .personType) { person in
+            let data = try JSONEncoder().encode(person)
+            return data
+        }
+        FileRepresentation(contentType: .personType) { person in
+            let docsURL = URL.temporaryDirectory.appendingPathComponent("\(person.name)\(UUID().uuidString)", conformingTo: await .personType)
+            let data = try JSONEncoder().encode(person)
+            try data.write(to: docsURL)
+            return SentTransferredFile(docsURL)
+        } importing: { received in
+            let data = try Data(contentsOf: received.file)
+            let person = try JSONDecoder().decode(Person.self, from: data)
+            return person
+        }
     }
 }

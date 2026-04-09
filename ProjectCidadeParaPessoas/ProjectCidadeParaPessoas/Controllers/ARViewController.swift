@@ -9,10 +9,11 @@ import UIKit
 import RealityKit
 import CoreLocation
 
-class ARViewController: UIViewController {
+class ARViewController: UIViewController, DocumentDelegate {
     let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
     let geoService = GeoSerive()
+    var documentPicker: DocumentPicker!
     
     let customARView: CustomARView = {
         let view = CustomARView()
@@ -97,6 +98,25 @@ class ARViewController: UIViewController {
         return button
     }()
     
+    let button: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        let configImage = UIImage.SymbolConfiguration(pointSize: 20)
+        let image = UIImage(systemName: "book.fill", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        
+        var config = UIButton.Configuration.plain()
+        
+        config.image = image
+        config.imagePlacement = .all
+        config.background.backgroundColor = UIColor(named: "ButtonColor")
+        config.background.cornerRadius = 1000
+        config.imagePadding = 12.88
+        
+        button.configuration = config
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
@@ -107,6 +127,17 @@ class ARViewController: UIViewController {
             }
         }
         setAudioButtonRecordingState(isRecording: false)
+        documentPicker = DocumentPicker(presentationController:
+            self, delegate: self)
+        
+    }
+    
+    @objc private func clickButton() {
+        documentPicker.present(from: view)
+    }
+    
+    func didPickDocuments(documents: [Document]?) {
+        print("Receba")
     }
     
     func setupController() {
@@ -119,7 +150,7 @@ class ARViewController: UIViewController {
         view.addSubview(customARView)
         view.addSubview(audioButton)
         view.addSubview(searchButton)
-        
+        view.addSubview(button)
         view.addSubview(libraryButton)
         view.addSubview(shareButton)
         
@@ -135,6 +166,8 @@ class ARViewController: UIViewController {
         audioButton.addTarget(self, action: #selector(recordTouchUpOutside(_:)), for: .touchUpOutside)
         audioButton.addTarget(self, action: #selector(recordTouchDragExit(_:)), for: .touchDragExit)
         audioButton.addTarget(self, action: #selector(recordTouchCancel(_:)), for: .touchCancel)
+        
+        button.addTarget(self, action: #selector(clickButton), for: .touchUpInside)
     
         // add constrains
         NSLayoutConstraint.activate([
@@ -162,6 +195,11 @@ class ARViewController: UIViewController {
             shareButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200),
             shareButton.widthAnchor.constraint(equalToConstant: 78),
             shareButton.heightAnchor.constraint(equalToConstant: 78),
+            
+            button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 150),
+            button.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -300),
+            button.widthAnchor.constraint(equalToConstant: 78),
+            button.heightAnchor.constraint(equalToConstant: 78),
         ])
     }
     
@@ -205,6 +243,7 @@ class ARViewController: UIViewController {
     @objc func playAudio(_ sender: Any) {
         audioService.playAudio(sender)
     }
+    
     func creatARObj() {
         customARView.scene.addAnchor(customARViewModel.creatObj(color: .purple, arView : customARView))
         

@@ -70,7 +70,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>com.testApp.person</string>
+					<string>cubo</string>
 				</array>
 			</dict>
 		</dict>
@@ -97,7 +97,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>com.testApp.person</string>
+					<string>cubo</string>
 				</array>
 			</dict>
 		</dict>
