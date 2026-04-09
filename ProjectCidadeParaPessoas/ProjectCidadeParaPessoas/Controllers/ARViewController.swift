@@ -234,14 +234,20 @@ class ARViewController: UIViewController {
         recordingSavedView.alpha = 1
 
         let bounce = CAKeyframeAnimation(keyPath: "transform.translation.y")
-        bounce.values = [18, -3, 0, -1, 0]
-        bounce.keyTimes = [0, 0.5, 0.75, 0.9, 1]
-        bounce.duration = 0.36
-        bounce.timingFunction = CAMediaTimingFunction(name: .default)
+        // O primeiro valor é o quando ele fica fora da tela e quanto maior mais "forte" ele sobe
+        // Os valores negativos deixam o bounce mais suave
+        bounce.values = [18, -3, 0, -1, 0, 18]
+        bounce.keyTimes = [0, 0.35, 0.55, 0.7, 0.82, 1]
+        bounce.duration = 0.55
+        bounce.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        bounce.fillMode = .forwards
+        bounce.isRemovedOnCompletion = false
         recordingSavedView.layer.add(bounce, forKey: "recordingSavedBounce")
 
-        UIView.animate(withDuration: 0.2, delay: 0.65, options: [.curveEaseIn]) {
+        UIView.animate(withDuration: 0.18, delay: 0.57, options: [.curveEaseOut]) {
             self.recordingSavedView.alpha = 0
+        } completion: { _ in
+            self.recordingSavedView.layer.removeAnimation(forKey: "recordingSavedBounce")
         }
     }
     
