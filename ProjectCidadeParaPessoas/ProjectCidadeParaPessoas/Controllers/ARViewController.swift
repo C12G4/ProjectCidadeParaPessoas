@@ -261,7 +261,7 @@ class ARViewController: UIViewController, DocumentDelegate {
     
     @objc func share(_ sender: Any) {
         
-        let items = PersonObject(person: Person(name: "asd", id: UUID(), lat: 0.0, longe: 0.0, audio: "AUDIO"))
+        let items = PersonObject(person: Person(name: "asd", id: UUID(), lat: 0.0, longe: 0.0, audio: "AUDIO", compartilhado: true))
 
         let ac = UIActivityViewController(activityItems: [items] as! [Any], applicationActivities: nil)
         present(ac, animated: true)

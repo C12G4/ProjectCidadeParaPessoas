@@ -8,15 +8,12 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
+    
     var window: UIWindow?
-
-
-    func scene(
-        _ scene: UIScene,
-        willConnectTo session: UISceneSession,
-        options connectionOptions: UIScene.ConnectionOptions
-    ) {
+    
+    
+    func scene(_ scene: UIScene,willConnectTo session: UISceneSession,options connectionOptions: UIScene.ConnectionOptions) {
+        
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         //        window = UIWindow(windowScene: windowScene)
@@ -25,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         //        window?.rootViewController = UINavigationController(rootViewController: initialViewController)
         //        window?.makeKeyAndVisible()
         
-    
+        
         let window = UIWindow(windowScene: windowScene)
         let rootVC = ARViewController()
         
@@ -33,51 +30,69 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         self.window = window
         
+        
+        if let urlContext = connectionOptions.urlContexts.first {
+            // Access the URL
+            let url = urlContext.url
+            // Handle the URL here
+            //handleDeepLink(url)
+            guard let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("com.testApp.person") == .orderedSame else {
+                return
+            }
+            
+            var parameters: [String: String] = [:]
+            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
+                parameters[$0.name] = $0.value
+            }
+            
+            guard let name = parameters["name"] else {
+                print("Name not found")
+                return
+            }
+            //o decode ta errado
+            let decoded = try? JSONDecoder().decode(PersonObject.self,from: name.data(using: .utf8) ?? Data())
+            
+            //            window.rootViewController  = SharedViewController(card: decoded?.texto ?? "\(name.data(using: .utf8) ?? Data())")
+            window.rootViewController  = SharedViewController(card: decoded ?? PersonObject(person: Person(name: "não veio", id: UUID(), lat: 0, longe: 0, audio: "audio", compartilhado: true)))
+            
+            
+        }
+        else {
+            window.rootViewController = ARViewController()
+        }
+        
     }
-}
     
-
-
-func sceneDidDisconnect(_ scene: UIScene) {
-    // Called as the scene is being released by the system.
-    // This occurs shortly after the scene enters the background, or when its session is discarded.
-    // Release any resources associated with this scene that can be re-created the next time the scene connects.
-    // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
-}
-
-func sceneDidBecomeActive(_ scene: UIScene) {
-    // Called when the scene has moved from an inactive state to an active state.
-    // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-}
-
-func sceneWillResignActive(_ scene: UIScene) {
-    // Called when the scene will move from an active state to an inactive state.
-    // This may occur due to temporary interruptions (ex. an incoming phone call).
-}
-
-func sceneWillEnterForeground(_ scene: UIScene) {
-    // Called as the scene transitions from the background to the foreground.
-    // Use this method to undo the changes made on entering the background.
-}
-
-func sceneDidEnterBackground(_ scene: UIScene) {
-    // Called as the scene transitions from the foreground to the background.
-    // Use this method to save data, release shared resources, and store enough scene-specific state information
-    // to restore the scene back to its current state.
-}
-
-func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-    for urlContext in URLContexts {
-        let url = urlContext.url
-        print("Handle URL: \(url)")
+    func sceneDidDisconnect(_ scene: UIScene) {
+        // Called as the scene is being released by the system.
+        // This occurs shortly after the scene enters the background, or when its session is discarded.
+        // Release any resources associated with this scene that can be re-created the next time the scene connects.
+        // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
+    }
+    
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        // Called when the scene has moved from an inactive state to an active state.
+        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+    }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        // Called when the scene will move from an active state to an inactive state.
+        // This may occur due to temporary interruptions (ex. an incoming phone call).
+    }
+    
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        // Called as the scene transitions from the background to the foreground.
+        // Use this method to undo the changes made on entering the background.
+    }
+    
+    func sceneDidEnterBackground(_ scene: UIScene) {
+        // Called as the scene transitions from the foreground to the background.
+        // Use this method to save data, release shared resources, and store enough scene-specific state information
+        // to restore the scene back to its current state.
+    }
+    
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        print("sdadasä")
     }
 }
-
-func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-   for urlContext in connectionOptions.urlContexts {
-        let url = urlContext.url
-        print("Handle URL: \(url)")
-   }
-}
-
-

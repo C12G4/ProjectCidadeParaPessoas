@@ -25,6 +25,7 @@ struct Person: Decodable, Encodable, Sendable {
     let lat: Double
     let longe: Double
     let audio: String
+    let compartilhado: Bool
 }
 
 extension UTType {
@@ -38,6 +39,7 @@ class PersonObject: NSObject, Encodable, Decodable{
     let lat: Double
     let longe: Double
     let audio: String
+    let compartilhado: Bool
     
     init(person: Person) {
         self.name = person.name
@@ -45,6 +47,7 @@ class PersonObject: NSObject, Encodable, Decodable{
         self.lat = person.lat
         self.longe = person.longe
         self.audio = person.audio
+        self.compartilhado = person.compartilhado
     }
 }
 
