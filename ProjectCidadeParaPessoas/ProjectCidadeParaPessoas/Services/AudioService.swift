@@ -18,12 +18,14 @@
 
 import UIKit
 import AVFoundation
+import Combine
 
 class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
     var audioPlayer: AVAudioPlayer?
     var audioRecorder: AVAudioRecorder?
     let audioSession = AVAudioSession.sharedInstance()
     var onRecordingStateChanged: ((Bool) -> Void)?
+    var coreDataController = CoreDataController()
     
     var isRecording: Bool {
         audioRecorder?.isRecording ?? false
@@ -93,6 +95,7 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
             audioRecorder?.stop()
             do { try audioSession.setActive(false) } catch { }
             onRecordingStateChanged?(false)
+            coreDataController.createCard(name: "abacate", id: UUID(), lat: 0, longe: 0, audio: audioRecorder?.url.absoluteString ?? "não veio")
         }
     }
     
@@ -110,5 +113,9 @@ class AudioService: NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate {
                 print("audioPlayer error: \(error.localizedDescription)")
             }
         }
+    }
+    
+    func getAudioFileURL() -> URL? {
+        return audioRecorder?.url
     }
 }

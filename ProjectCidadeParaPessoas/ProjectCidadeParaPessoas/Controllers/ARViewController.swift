@@ -4,6 +4,7 @@
 //
 //  Created by Jonas Fernando Nascimento Melo on 30/03/26.
 //
+
 import UIKit
 import RealityKit
 
@@ -123,6 +124,7 @@ class ARViewController: UIViewController {
         
         //target
         shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
+        libraryButton.addTarget(self, action: #selector(openLibrary(_:)), for: .touchUpInside)
         
         // addTarget
         searchButton.addTarget(self, action: #selector(playAudio(_:)), for: .touchUpInside)
@@ -207,10 +209,19 @@ class ARViewController: UIViewController {
     }
     
     @objc func share(_ sender: Any) {
-        ///TODO: receber card
-        var card =  try? Card2(title: "Cardtitle", texto: "Cardtexto", audio: "CardAudio")
-        var items = ShareService.shared.share(card: card!)
-        let ac = UIActivityViewController(activityItems: items as! [Any], applicationActivities: nil)
+        
+        let items = PersonObject(person: Person(name: "asd", id: UUID(), lat: 0.0, longe: 0.0, audio: "AUDIO"))
+
+        let ac = UIActivityViewController(activityItems: [items] as! [Any], applicationActivities: nil)
         present(ac, animated: true)
+    }
+    
+    @objc func openLibrary(_ sender: Any) {
+        let libraryVC = LibraryViewController(audioService: audioService)
+        if let sheet = libraryVC.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(libraryVC, animated: true)
     }
 }
