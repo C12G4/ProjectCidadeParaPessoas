@@ -24,7 +24,6 @@ class GeoSerive: NSObject {
     }
     
     
-    
     private func checkLocationAuthorization() {
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
