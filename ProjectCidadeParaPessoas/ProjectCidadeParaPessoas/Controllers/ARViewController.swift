@@ -63,7 +63,7 @@ class ARViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         
-        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
+        let configImage = UIImage.SymbolConfiguration(pointSize: 20)
         let image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         
         var config = UIButton.Configuration.plain()
@@ -158,10 +158,10 @@ class ARViewController: UIViewController {
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
             libraryButton.heightAnchor.constraint(equalToConstant: 52),
             
-            shareButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120.38),
-            shareButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200),
-            shareButton.widthAnchor.constraint(equalToConstant: 78),
-            shareButton.heightAnchor.constraint(equalToConstant: 78),
+            shareButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
+            shareButton.trailingAnchor.constraint(equalTo: view.leadingAnchor, constant: 82),
+            shareButton.widthAnchor.constraint(equalToConstant: 52),
+            shareButton.heightAnchor.constraint(equalToConstant: 52),
         ])
     }
     
