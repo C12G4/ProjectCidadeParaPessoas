@@ -116,6 +116,8 @@ class ARViewController: UIViewController {
             }
         }
         setAudioButtonRecordingState(isRecording: false)
+        
+        customARViewModel.renderAllMemories(arView: customARView)
     }
     
     func setupController() {
@@ -213,17 +215,19 @@ class ARViewController: UIViewController {
     @objc func playAudio(_ sender: Any) {
         audioService.playAudio(sender)
     }
+
     func creatARObj() {
-        customARView.scene.addAnchor(customARViewModel.creatObj(color: .purple, arView : customARView))
+        customARView.anchor.addChild(customARViewModel.creatObj(color: .purple, cameraTransform : customARView.cameraTransform))
         
         if let audioPath = audioService.getAudioFilePath() {
-            let location = geoService.locationManager.location ?? CLLocation(latitude: 0, longitude: 0)
+            let location = geoService.getActualLocation() ?? CLLocation(latitude: 0, longitude: 0)
             _ = CoreDataService.shared.createCard(
                 name: "Audio \(Date().formatted(date: .abbreviated, time: .shortened))",
                 id: UUID(),
                 lat: location.coordinate.latitude,
                 longe: location.coordinate.longitude,
-                audio: audioPath
+                audio: audioPath,
+                compartilhado: false
             )
             showRecordingSavedFeedback()
         }

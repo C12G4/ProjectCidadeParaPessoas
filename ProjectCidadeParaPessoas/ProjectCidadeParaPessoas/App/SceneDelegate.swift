@@ -10,13 +10,13 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    var arViewController = ARViewController()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = ARViewController()
+        window.rootViewController = arViewController
         window.makeKeyAndVisible()
         self.window = window
 
@@ -63,8 +63,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             id: shared.id,
             lat: shared.lat,
             longe: shared.longe,
-            audio: storedAudioName
+            audio: storedAudioName,
+            compartilhado: shared.compartilhado
         )
+        arViewController.customARViewModel.deleteAllRenderd(arView: arViewController.customARView)
+        arViewController.customARViewModel.renderAllMemories(arView: arViewController.customARView)
     }
     
 
