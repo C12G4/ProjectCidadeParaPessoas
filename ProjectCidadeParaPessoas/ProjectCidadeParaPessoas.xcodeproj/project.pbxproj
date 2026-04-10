@@ -155,14 +155,16 @@
 				DEVELOPMENT_TEAM = 32M6C7GWMQ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "esse app requer mic";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Esse aplicativo precisa de acesso a camera para renderizar os relatos, por favor, conceda a permissao.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Esse aplicativo precisa de acesso ao microfone para gravar os audios atrelados aos relatos, por favor, conceda a permissao.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -194,14 +196,16 @@
 				DEVELOPMENT_TEAM = 32M6C7GWMQ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "esse app requer mic";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Esse aplicativo precisa de acesso a camera para renderizar os relatos, por favor, conceda a permissao.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Esse aplicativo precisa de acesso ao microfone para gravar os audios atrelados aos relatos, por favor, conceda a permissao.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

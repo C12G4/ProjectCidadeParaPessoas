@@ -9,6 +9,7 @@ import UIKit
 import RealityKit
 import ARKit
 import Foundation
+import SwiftUI
 
 class CustomARViewModel {
     private var initialLocation = CLLocation()
@@ -22,78 +23,72 @@ class CustomARViewModel {
     var numOfSons = 0
     
     init() {
-        initialLocation = geoService.getActualLocation()
+        initialLocation = geoService.getActualLocation()!
     }
     
     func creatObj(color: UIColor, cameraTransform: Transform) -> ModelEntity{
         let object = MeshResource.generateBox(size: 0.1)
         let material = SimpleMaterial(color: color, isMetallic: false)
         let entity = ModelEntity(mesh: object, materials: [material])
-        
-        let position = gpsToSIMD3()
-        entity.position.x = position.x * -10000
-        entity.position.y = position.y
-        entity.position.z = position.z * 100
-        print(entity.position.z)
-        entity.name = "filho numero: \(numOfSons)"
-        numOfSons += 1
+
+        entity.position.x = cameraTransform.translation.x
+        entity.position.y = 0
+        entity.position.z = cameraTransform.translation.z
+        entity.generateCollisionShapes(recursive: true)
     
-        
-        print(entity.position.x)
         return entity
     }
     
-    private func gpsToSIMD3() -> SIMD3<Float> {
-        updateActualLocation()
+    private func gpsToSIMD3(lat: Double, lon: Double) -> SIMD3<Float> {
         let radius = 6371.0
         
         let lon1 = initialLocation.coordinate.longitude * Double.pi / 180.0
         let lat1 = initialLocation.coordinate.latitude * Double.pi / 180.0
         
-        let lon2 = actualLocation.coordinate.longitude * Double.pi / 180.0
-        let lat2 = actualLocation.coordinate.latitude * Double.pi / 180.0
+        let lon2 = lon * Double.pi / 180
+        let lat2 = lat * Double.pi / 180
         
-        let dLat = (actualLocation.coordinate.latitude - initialLocation.coordinate.latitude) * Double.pi / 180.0
-        let dLon = (actualLocation.coordinate.longitude - initialLocation.coordinate.longitude) * Double.pi / 180.0
+        let dLat = (lat - initialLocation.coordinate.latitude) * Double.pi / 180.0
+        let dLon = (lon - initialLocation.coordinate.longitude) * Double.pi / 180.0
         
         let a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) * sin(dLon/2) * sin(dLon/2)
         let c = 2 * atan2(sqrt(a), sqrt(1-a))
+        
         let z = sqrt(a) * radius
         let x = sqrt(1-a) * radius
-        let d = radius * c
         
-        count += 0.1
-        print(z)
-        return SIMD3<Float>(Float(0), Float(0), Float(x))
+        return SIMD3<Float>(Float(dLat), Float(0), Float(dLon))
     }
     
     private func updateActualLocation(){
-        actualLocation = geoService.getActualLocation()
+        actualLocation = geoService.getActualLocation()!
     }
     
-    func rosaDosVentos(){
-        let object1 = MeshResource.generateBox(size: 0.1)
-        let material1 = SimpleMaterial(color: UIColor.blue, isMetallic: false)
-        let material2 = SimpleMaterial(color: UIColor.green, isMetallic: false)
-        let entity1 = ModelEntity(mesh: object1, materials: [material1])
-        entity1.position.x = 1
-        entity1.position.y = -0.5
-        let entity2 = ModelEntity(mesh: object1, materials: [material2])
-        entity2.position.x = -1
-        entity2.position.y = -0.5
+    func renderAllMemories(arView: CustomARView) {
+        let cards = CoreDataService.shared.fetchAllCards()
+        var count = 0.0
+        for card in cards {
+            let cardPosition = gpsToSIMD3(lat: card.lat, lon: card.longe)
+            let object = MeshResource.generateBox(size: 0.1)
+    
+            let material = SimpleMaterial(color: card.compartilhado ? UIColor.green : UIColor.blue, isMetallic: false)
         
-        let object3 = MeshResource.generateBox(size: 0.1)
-        let material3 = SimpleMaterial(color: UIColor.red, isMetallic: false)
-        let material4 = SimpleMaterial(color: UIColor.orange, isMetallic: false)
-        let entity3 = ModelEntity(mesh: object3, materials: [material3])
-        entity3.position.z = 1
-        entity3.position.y = -0.5
-        let entity4 = ModelEntity(mesh: object3, materials: [material4])
-        entity4.position.z = -1
-        entity4.position.y = -0.5
-        
-        let object5 = MeshResource.generateBox(size: 0.1)
-        let material5 = SimpleMaterial(color: UIColor.gray, isMetallic: false)
-        let entity5 = ModelEntity(mesh: object5, materials: [material5])
+            let entity = ModelEntity(mesh: object, materials: [material])
+            
+            entity.position.x = cardPosition.x * 10000000
+            entity.position.y = 0
+            entity.position.z = cardPosition.z * 10000000
+            entity.generateCollisionShapes(recursive: true)
+            
+            arView.anchor.addChild(entity)
+            print("x = \(entity.position.x)")
+            print("z = \(entity.position.z))")
+            
+            count += 0.25
+        }
+    }
+    
+    func deleteAllRenderd(arView: CustomARView){
+        arView.anchor.children.removeAll()
     }
 }

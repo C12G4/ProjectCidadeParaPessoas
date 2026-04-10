@@ -18,11 +18,10 @@ class GeoSerive: NSObject {
         locationManager.startUpdatingLocation()
     }
     
-    func getActualLocation() -> CLLocation {
+    func getActualLocation() -> CLLocation? {
         locationManager.requestLocation()
-        return locationManager.location!
+        return locationManager.location
     }
-    
     
     
     private func checkLocationAuthorization() {

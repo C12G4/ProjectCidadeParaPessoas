@@ -10,55 +10,64 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    var arViewController = ARViewController()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        
-//        window = UIWindow(windowScene: windowScene)
-//
-//        let initialViewController = ARController()
-//        window?.rootViewController = UINavigationController(rootViewController: initialViewController)
-//        window?.makeKeyAndVisible()
-        
-    
+
         let window = UIWindow(windowScene: windowScene)
-        let rootVC = ARViewController()
-        
-        window.rootViewController = rootVC
+        window.rootViewController = arViewController
         window.makeKeyAndVisible()
         self.window = window
-        
+
+        // quando o app abre por um arquivo compartilhado a URL chega aqui
         if let urlContext = connectionOptions.urlContexts.first {
-            // Access the URL
-            let url = urlContext.url
-            // Handle the URL here
-            //handleDeepLink(url)
-            guard let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("com.testApp.person") == .orderedSame else {
-                return
-            }
-            
-            var parameters: [String: String] = [:]
-            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
-                parameters[$0.name] = $0.value
-            }
-            
-            guard let name = parameters["name"] else {
-                print("Name not found")
-                return
-            }
-            //o decode ta errado
-            let decoded = try? JSONDecoder().decode(PersonObject.self,from: name.data(using: .utf8) ?? Data())
-            
-//            window.rootViewController  = SharedViewController(card: decoded?.texto ?? "\(name.data(using: .utf8) ?? Data())")
-            window.rootViewController  = SharedViewController(card: decoded ?? PersonObject(person: Person(name: "não veio", id: UUID(), lat: 0, longe: 0, audio: "audio")))
-        
-            
-        }
-        else {
-            window.rootViewController = ARViewController()
+            handleIncomingURL(urlContext.url)
         }
     }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        // se o app já está aberto e recebe outro arquivo entra por esta funcao
+        guard let context = URLContexts.first else { return }
+        handleIncomingURL(context.url)
+    }
+
+    private func handleIncomingURL(_ url: URL) {
+        // le o arquivo .person e converte para PersonObject
+        guard url.isFileURL,
+              let data = try? Data(contentsOf: url),
+              let shared = try? JSONDecoder().decode(PersonObject.self, from: data) else { return }
+
+        let storedAudioName: String
+        if let audioData = shared.audioData, !audioData.isEmpty {
+            // se o payload tiver um áudio ele salva no Documents do app
+            let baseName = URL(fileURLWithPath: shared.audio).lastPathComponent
+            let originalName = baseName.isEmpty ? "audio.m4a" : baseName
+            let ext = URL(fileURLWithPath: originalName).pathExtension
+            let extSafe = ext.isEmpty ? "m4a" : ext
+            let fileName = "audio_\(UUID().uuidString).\(extSafe)"
+            // documents é tipo uma pasta de arquivos do próprio app (local)
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let destinationURL = documentsURL.appendingPathComponent(fileName)
+            try? audioData.write(to: destinationURL, options: .atomic)
+            storedAudioName = fileName
+        }
+        else {
+            // se não vier um audio em bytes ele guarda só a referência recebida
+            storedAudioName = shared.audio
+        }
+
+        // salva no Core Data pra aparecer na biblioteca
+        _ = CoreDataService.shared.createCard(
+            name: shared.name,
+            id: shared.id,
+            lat: shared.lat,
+            longe: shared.longe,
+            audio: storedAudioName,
+            compartilhado: shared.compartilhado
+        )
+        arViewController.customARViewModel.deleteAllRenderd(arView: arViewController.customARView)
+        arViewController.customARViewModel.renderAllMemories(arView: arViewController.customARView)
     }
     
 
@@ -68,9 +77,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This occurs shortly after the scene enters the background, or when its session is discarded.
         // Release any resources associated with this scene that can be re-created the next time the scene connects.
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
-    }
 
-    func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
     }
@@ -90,5 +97,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
-
+}

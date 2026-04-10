@@ -7,11 +7,22 @@
 
 import UIKit
 import RealityKit
+import CoreLocation
 
 class ARViewController: UIViewController {
     let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
-    
+    let geoService = GeoSerive()
+
+    private let recordingSavedView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor.systemGray4.withAlphaComponent(0.95)
+        view.layer.cornerRadius = 32
+        view.alpha = 0
+        return view
+    }()
+
     let customARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +72,7 @@ class ARViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         
-        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
+        let configImage = UIImage.SymbolConfiguration(pointSize: 20)
         let image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
         
         var config = UIButton.Configuration.plain()
@@ -105,22 +116,26 @@ class ARViewController: UIViewController {
             }
         }
         setAudioButtonRecordingState(isRecording: false)
+        
+        customARViewModel.renderAllMemories(arView: customARView)
     }
     
     func setupController() {
         //configure view
         audioButton.layer.zPosition = 10
+        let tapGesture = UITapGestureRecognizer(target: customARView,
+                                                action: #selector(customARView.handleTap))
+        customARView.addGestureRecognizer(tapGesture)
         //add subviews
         view.addSubview(customARView)
         view.addSubview(audioButton)
         view.addSubview(searchButton)
-        view.addSubview(audioButton)
         
         view.addSubview(libraryButton)
         view.addSubview(shareButton)
-        
+        view.addSubview(recordingSavedView)
+
         //target
-        
         shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
         libraryButton.addTarget(self, action: #selector(openLibrary(_:)), for: .touchUpInside)
         
@@ -130,7 +145,6 @@ class ARViewController: UIViewController {
         audioButton.addTarget(self, action: #selector(recordTouchDown(_:)), for: .touchDown)
         audioButton.addTarget(self, action: #selector(recordTouchUpInside(_:)), for: .touchUpInside)
         audioButton.addTarget(self, action: #selector(recordTouchUpOutside(_:)), for: .touchUpOutside)
-        audioButton.addTarget(self, action: #selector(recordTouchDragExit(_:)), for: .touchDragExit)
         audioButton.addTarget(self, action: #selector(recordTouchCancel(_:)), for: .touchCancel)
     
         // add constrains
@@ -140,7 +154,7 @@ class ARViewController: UIViewController {
             customARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             customARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 102.38),
+            audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 101.38),
             audioButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32.25),
             audioButton.widthAnchor.constraint(equalToConstant: 78),
             audioButton.heightAnchor.constraint(equalToConstant: 78),
@@ -153,12 +167,17 @@ class ARViewController: UIViewController {
             libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
             libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             libraryButton.widthAnchor.constraint(equalToConstant: 52),
-            libraryButton.heightAnchor.constraint(equalToConstant: 52),
-            
-            shareButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120.38),
-            shareButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200),
-            shareButton.widthAnchor.constraint(equalToConstant: 78),
-            shareButton.heightAnchor.constraint(equalToConstant: 78),
+            libraryButton.heightAnchor.constraint(equalToConstant: 52),            
+
+            recordingSavedView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            recordingSavedView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            recordingSavedView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -8),
+            recordingSavedView.heightAnchor.constraint(equalToConstant: 24),
+
+            shareButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
+            shareButton.trailingAnchor.constraint(equalTo: view.leadingAnchor, constant: 82),
+            shareButton.widthAnchor.constraint(equalToConstant: 52),
+            shareButton.heightAnchor.constraint(equalToConstant: 52),
         ])
     }
     
@@ -172,12 +191,6 @@ class ARViewController: UIViewController {
     }
 
     @objc func recordTouchUpOutside(_ sender: Any) {
-        audioService.stopRecordingIfNeeded()
-        creatARObj()
-
-    }
-
-    @objc func recordTouchDragExit(_ sender: Any) {
         audioService.stopRecordingIfNeeded()
         creatARObj()
 
@@ -202,16 +215,71 @@ class ARViewController: UIViewController {
     @objc func playAudio(_ sender: Any) {
         audioService.playAudio(sender)
     }
-    func creatARObj(){
-        customARView.anchor.addChild(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
-        print(customARView.anchor.children.count)
+
+    func creatARObj() {
+        customARView.anchor.addChild(customARViewModel.creatObj(color: .purple, cameraTransform : customARView.cameraTransform))
+        
+        if let audioPath = audioService.getAudioFilePath() {
+            let location = geoService.getActualLocation() ?? CLLocation(latitude: 0, longitude: 0)
+            _ = CoreDataService.shared.createCard(
+                name: "Audio \(Date().formatted(date: .abbreviated, time: .shortened))",
+                id: UUID(),
+                lat: location.coordinate.latitude,
+                longe: location.coordinate.longitude,
+                audio: audioPath,
+                compartilhado: false
+            )
+            showRecordingSavedFeedback()
+        }
+    }
+
+    private func showRecordingSavedFeedback() {
+        recordingSavedView.layer.removeAllAnimations()
+        recordingSavedView.alpha = 1
+
+        let bounce = CAKeyframeAnimation(keyPath: "transform.translation.y")
+        // O primeiro valor é o quando ele fica fora da tela e quanto maior mais "forte" ele sobe
+        // Os valores negativos deixam o bounce mais suave
+        bounce.values = [18, -3, 0, -1, 0, 18]
+        bounce.keyTimes = [0, 0.35, 0.55, 0.7, 0.82, 1]
+        bounce.duration = 0.55
+        bounce.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        bounce.fillMode = .forwards
+        bounce.isRemovedOnCompletion = false
+        recordingSavedView.layer.add(bounce, forKey: "recordingSavedBounce")
+
+        UIView.animate(withDuration: 0.18, delay: 0.57, options: [.curveEaseOut]) {
+            self.recordingSavedView.alpha = 0
+        } completion: { _ in
+            self.recordingSavedView.layer.removeAnimation(forKey: "recordingSavedBounce")
+        }
     }
     
     @objc func share(_ sender: Any) {
-        
-        let items = PersonObject(person: Person(name: "asd", id: UUID(), lat: 0.0, longe: 0.0, audio: "AUDIO"))
+        // compartilha o ultimo relato salvo (texto + localização + áudio)
+        // o audio vai junto em bytes para funcionar em outro app/dispositivo
+        let cards = CoreDataService.shared.fetchAllCards()
+        guard let card = cards.last,
+              let name = card.name,
+              let audioStoredValue = card.audio else { return }
 
-        let ac = UIActivityViewController(activityItems: [items] as! [Any], applicationActivities: nil)
+        // pega a URL real do áudio no app atual e le o conteudo do arquivo
+        let audioURL = audioService.resolveAudioURL(from: audioStoredValue)
+        let audioData = try? Data(contentsOf: audioURL)
+
+        // monta um payload com tudo e exporta como .person
+        let item = PersonObject(person: Person(
+            name: name,
+            id: card.id ?? UUID(),
+            lat: card.lat,
+            longe: card.longe,
+            audio: URL(fileURLWithPath: audioStoredValue).lastPathComponent,
+            compartilhado: true,
+            audioData: audioData
+        ))
+
+        // abre a sheet de compartilhamento
+        let ac = UIActivityViewController(activityItems: [item], applicationActivities: nil)
         present(ac, animated: true)
     }
     

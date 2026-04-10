@@ -6,12 +6,12 @@
 //
 
 import UIKit
+import AVFoundation
 
 class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let audioService: AudioService
-    var audioURL: URL?
-    var coreDataController = CoreDataController()
-    var audios = [URL]()
+    var cards: [Card] = []
+    var audioPlayer: AVAudioPlayer?
     
     let tableView: UITableView = {
         let table = UITableView()
@@ -43,7 +43,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         view.backgroundColor = .systemGray5
         setupUI()
-        loadAllAudios()
+        loadCards()
     }
     
     func setupUI() {
@@ -52,6 +52,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 80
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
@@ -64,32 +66,29 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         ])
     }
     
-    func loadAllAudios(){
-        var cards = coreDataController.getCards()
-        for card in cards{
-            audios.append(URL(string: card.audio ?? "")!)
-        }
-        loadAudioFile(audioURL2: audios)
-    }
-    
-    func loadAudioFile(audioURL2: [URL]) {
-        //RESOLVER
-        
-//        audioURL = audioURL2
+    func loadCards() {
+        cards = CoreDataService.shared.fetchAllCards()
         tableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return audioURL != nil ? 1 : 0
+        return cards.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "AudioCell", for: indexPath)
-        
-        let fileName = audioURL?.lastPathComponent ?? "Audio"
+        let card = cards[indexPath.row]
         
         var config = cell.defaultContentConfiguration()
-        config.text = fileName
+        config.text = card.name ?? "Áudio"
+        
+        if let audioPath = card.audio {
+            let fileName = URL(fileURLWithPath: audioPath).lastPathComponent
+            config.secondaryText = fileName
+        } else {
+            config.secondaryText = ""
+        }
+        
         cell.contentConfiguration = config
         cell.accessoryType = .disclosureIndicator
         
@@ -97,11 +96,54 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        audioService.playAudio(self)
+        let card = cards[indexPath.row]
+        if let audioPath = card.audio {
+            let url = resolveAudioURL(from: audioPath)
+            if FileManager.default.fileExists(atPath: url.path) {
+                do {
+                    audioPlayer = try AVAudioPlayer(contentsOf: url)
+                    audioPlayer?.prepareToPlay()
+                    audioPlayer?.play()
+                } catch {
+                    print("Error playing audio: \(error)")
+                }
+            }
+        }
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completionHandler in
+            guard let self = self else {
+                completionHandler(true)
+                return
+            }
+
+            let card = self.cards[indexPath.row]
+
+            if let audioPath = card.audio {
+                let url = self.resolveAudioURL(from: audioPath)
+                try? FileManager.default.removeItem(at: url)
+            }
+
+            CoreDataService.shared.deleteCard(card)
+            self.loadCards()
+            completionHandler(true)
+        }
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+
+    private func resolveAudioURL(from storedValue: String) -> URL {
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileName = URL(fileURLWithPath: storedValue).lastPathComponent
+        let localURL = documentsURL.appendingPathComponent(fileName)
+
+        if FileManager.default.fileExists(atPath: localURL.path) {
+            return localURL
+        }
+
+        guard storedValue.hasPrefix("/") else { return localURL }
+        return URL(fileURLWithPath: storedValue)
     }
 }

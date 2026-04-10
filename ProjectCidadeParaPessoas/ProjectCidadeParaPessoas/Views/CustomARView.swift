@@ -28,4 +28,13 @@ class CustomARView: ARView {
         session.run(configuration)
         self.scene.addAnchor(anchor)
     }
+    
+    @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
+        let arView = self
+        let tapLocation = recognizer.location(in: arView)
+        
+        if let entity = arView.entity(at: tapLocation) as? ModelEntity {
+            print("bloco")
+        }
+    }
 }

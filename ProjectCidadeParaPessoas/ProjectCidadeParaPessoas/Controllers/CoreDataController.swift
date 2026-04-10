@@ -18,8 +18,8 @@ class CoreDataController: ObservableObject{
         return cards
     }
     
-    func createCard(name: String, id: UUID, lat: Double, longe: Double, audio: String){
-        let result = CoreDataService.shared.createCard(name: name, id: id, lat: lat, longe: longe, audio: audio)
+    func createCard(name: String, id: UUID, lat: Double, longe: Double, audio: String, compartilhado: Bool){
+        let result = CoreDataService.shared.createCard(name: name, id: id, lat: lat, longe: longe, audio: audio, compartilhado: compartilhado)
         self.cards.append(result)
     }
     
