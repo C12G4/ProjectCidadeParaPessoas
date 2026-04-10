@@ -10,6 +10,8 @@ import RealityKit
 import Foundation
 
 class CustomARView: ARView {
+    var anchor = AnchorEntity(world: .zero)
+    
     required init(frame: CGRect){
         super.init(frame: frame)
     }
@@ -24,5 +26,6 @@ class CustomARView: ARView {
         let configuration = ARWorldTrackingConfiguration()
         configuration.worldAlignment = .gravityAndHeading
         session.run(configuration)
+        self.scene.addAnchor(anchor)
     }
 }

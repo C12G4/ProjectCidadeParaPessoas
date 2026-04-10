@@ -203,7 +203,8 @@ class ARViewController: UIViewController {
         audioService.playAudio(sender)
     }
     func creatARObj(){
-        customARView.scene.addAnchor(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
+        customARView.anchor.addChild(customARViewModel.creatObj(color: .magenta, cameraTransform: customARView.cameraTransform))
+        print(customARView.anchor.children.count)
     }
     
     @objc func share(_ sender: Any) {
