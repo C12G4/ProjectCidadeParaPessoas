@@ -26,6 +26,7 @@ struct Person: Decodable, Encodable, Sendable {
     let longe: Double
     let audio: String
     let compartilhado: Bool
+    let audioData: Data?
 }
 
 extension UTType {
@@ -40,6 +41,7 @@ class PersonObject: NSObject, Encodable, Decodable{
     let longe: Double
     let audio: String
     let compartilhado: Bool
+    let audioData: Data?
     
     init(person: Person) {
         self.name = person.name
@@ -48,6 +50,7 @@ class PersonObject: NSObject, Encodable, Decodable{
         self.longe = person.longe
         self.audio = person.audio
         self.compartilhado = person.compartilhado
+        self.audioData = person.audioData
     }
 }
 
@@ -57,9 +60,10 @@ extension PersonObject: UIActivityItemSource {
     }
     
     func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-        let encoder = JSONEncoder()
-        let jsonData = try? encoder.encode(self)
-        return jsonData
+        guard let jsonData = try? JSONEncoder().encode(self) else { return nil }
+        let fileURL = URL.temporaryDirectory.appendingPathComponent("\(id.uuidString).person")
+        try? jsonData.write(to: fileURL, options: .atomic)
+        return fileURL
     }
     
     func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {

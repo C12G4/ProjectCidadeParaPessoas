@@ -54,10 +54,7 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
-				<string>Sendable</string>
-				<string>Codable</string>
 				<string>public.json</string>
-				<string>Decodable</string>
 				<string>public.content</string>
 			</array>
 			<key>UTTypeDescription</key>
@@ -70,7 +67,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>cubo</string>
+					<string>person</string>
 				</array>
 			</dict>
 		</dict>
@@ -81,10 +78,7 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
-				<string>Sendable</string>
-				<string>Codable</string>
 				<string>public.json</string>
-				<string>Decodable</string>
 				<string>public.content</string>
 			</array>
 			<key>UTTypeDescription</key>
@@ -97,7 +91,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>cubo</string>
+					<string>person</string>
 				</array>
 			</dict>
 		</dict>

@@ -73,11 +73,11 @@ open class DocumentPicker: NSObject {
     
     
     private func documentFromURL(pickedURL: URL) {
-        let shouldStopAccessing =
-        pickedURL.startAccessingSecurityScopedResource()
-        
-        if shouldStopAccessing {
-            pickedURL.stopAccessingSecurityScopedResource()
+        let shouldStopAccessing = pickedURL.startAccessingSecurityScopedResource()
+        defer {
+            if shouldStopAccessing {
+                pickedURL.stopAccessingSecurityScopedResource()
+            }
         }
         
         NSFileCoordinator().coordinate(readingItemAt: pickedURL, error:
@@ -105,7 +105,7 @@ open class DocumentPicker: NSObject {
 
 extension DocumentPicker: UIDocumentPickerDelegate {
     
-    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickerDocumentsAt urls: [URL]) {
+    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let url = urls.first else { return }
         documentFromURL(pickedURL: url)
         delegate?.didPickDocuments(documents: documents)
