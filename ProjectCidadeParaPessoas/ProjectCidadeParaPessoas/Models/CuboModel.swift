@@ -1,19 +1,10 @@
 ////
-////  Card2.swift
+////  CuboModel.swift
 ////  ProjectCidadeParaPessoas
 ////
 ////  Created by Vinicius Marques on 01/04/26.
 ////
-//
-//
-////
-////  Card.swift
-////  UIKitPocs
-////
-////
-////  Created by Vinicius Alves Marques on 22/10/25.
-////
-//
+
 import UIKit
 import UniformTypeIdentifiers
 import CoreTransferable
@@ -30,6 +21,8 @@ struct Person: Decodable, Encodable, Sendable {
 }
 
 extension UTType {
+    // tipo de arquivo customizado do app (.person)
+    // precisa ser o mesmo que ta no info.plist
     public static let personType: UTType = .init(exportedAs: "com.testApp.person")
 }
 
@@ -56,10 +49,13 @@ class PersonObject: NSObject, Encodable, Decodable{
 
 extension PersonObject: UIActivityItemSource {
     func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        // placeholder obrigatorio da API de compartilhamento
         return name
     }
     
     func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        // converte o payload em JSON e salva em .person
+        // esse arquivo que o sistema entende e usa para aparecer a funcao de "Abrir em..." (ai abre com o nosso app)
         guard let jsonData = try? JSONEncoder().encode(self) else { return nil }
         let fileURL = URL.temporaryDirectory.appendingPathComponent("\(id.uuidString).person")
         try? jsonData.write(to: fileURL, options: .atomic)
@@ -71,12 +67,12 @@ extension PersonObject: UIActivityItemSource {
     }
     
     func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
+        // informa o tipo do arquivo que foi compartilhado
         return UTType.personType.identifier
     }
 }
 
 extension Person:@preconcurrency Transferable {
-    @available(iOS 16.0, *)
     static var transferRepresentation: some TransferRepresentation {
         CodableRepresentation(contentType: .personType)
         DataRepresentation(importedContentType: .personType) { data in

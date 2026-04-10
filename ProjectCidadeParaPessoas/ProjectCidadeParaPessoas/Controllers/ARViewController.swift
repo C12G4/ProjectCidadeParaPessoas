@@ -252,14 +252,18 @@ class ARViewController: UIViewController {
     }
     
     @objc func share(_ sender: Any) {
+        // compartilha o ultimo relato salvo (texto + localização + áudio)
+        // o audio vai junto em bytes para funcionar em outro app/dispositivo
         let cards = CoreDataService.shared.fetchAllCards()
         guard let card = cards.last,
               let name = card.name,
               let audioStoredValue = card.audio else { return }
 
+        // pega a URL real do áudio no app atual e le o conteudo do arquivo
         let audioURL = audioService.resolveAudioURL(from: audioStoredValue)
         let audioData = try? Data(contentsOf: audioURL)
 
+        // monta um payload com tudo e exporta como .person
         let item = PersonObject(person: Person(
             name: name,
             id: card.id ?? UUID(),
@@ -270,6 +274,7 @@ class ARViewController: UIViewController {
             audioData: audioData
         ))
 
+        // abre a sheet de compartilhamento
         let ac = UIActivityViewController(activityItems: [item], applicationActivities: nil)
         present(ac, animated: true)
     }
