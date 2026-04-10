@@ -40,7 +40,7 @@ class CustomARViewModel {
     }
     
     private func gpsToSIMD3(lat: Double, lon: Double) -> SIMD3<Float> {
-        let radius = 6371.0
+        let radius = 6378.137
         
         let lon1 = initialLocation.coordinate.longitude * Double.pi / 180.0
         let lat1 = initialLocation.coordinate.latitude * Double.pi / 180.0
@@ -75,9 +75,9 @@ class CustomARViewModel {
         
             let entity = ModelEntity(mesh: object, materials: [material])
             
-            entity.position.x = cardPosition.x * 10000000
+            entity.position.x = cardPosition.x * 1000000
             entity.position.y = 0
-            entity.position.z = cardPosition.z * 10000000
+            entity.position.z = cardPosition.z * 1000000
             entity.generateCollisionShapes(recursive: true)
             
             arView.anchor.addChild(entity)
