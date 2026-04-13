@@ -38,7 +38,7 @@ class CoreDataService: ObservableObject{
         }
     }
     
-    func createCard(name: String, id: UUID, lat: Double, longe: Double, audio: String, compartilhado: Bool) -> Card{
+    func createCard(name: String, id: UUID, lat: Double, longe: Double, audio: String, compartilhado: Bool, date: Date) -> Card{
         
         let card = Card(context: viewContext)
         
@@ -48,6 +48,7 @@ class CoreDataService: ObservableObject{
         card.longe = longe
         card.audio = audio
         card.compartilhado = compartilhado
+        card.date = date
         saveContext()
         return card
     }

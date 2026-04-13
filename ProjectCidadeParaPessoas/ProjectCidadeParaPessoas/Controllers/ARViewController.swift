@@ -230,7 +230,8 @@ class ARViewController: UIViewController {
                 lat: location.coordinate.latitude,
                 longe: location.coordinate.longitude,
                 audio: audioPath,
-                compartilhado: false
+                compartilhado: false,
+                date: Date.now
             )
             showRecordingSavedFeedback()
         }
@@ -278,7 +279,8 @@ class ARViewController: UIViewController {
             longe: card.longe,
             audio: URL(fileURLWithPath: audioStoredValue).lastPathComponent,
             compartilhado: true,
-            audioData: audioData
+            audioData: audioData,
+            date: card.date!
         ))
 
         // abre a sheet de compartilhamento

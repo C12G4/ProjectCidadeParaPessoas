@@ -64,7 +64,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             lat: shared.lat,
             longe: shared.longe,
             audio: storedAudioName,
-            compartilhado: shared.compartilhado
+            compartilhado: shared.compartilhado,
+            date: shared.date
         )
         arViewController.customARViewModel.deleteAllRenderd(arView: arViewController.customARView)
         arViewController.customARViewModel.renderAllMemories(arView: arViewController.customARView)
