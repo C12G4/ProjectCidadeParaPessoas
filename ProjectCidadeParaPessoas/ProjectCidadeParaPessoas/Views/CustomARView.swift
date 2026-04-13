@@ -40,7 +40,6 @@ class CustomARView: ARView {
             print("entity.name\(entity.name)")
             var actualCard = Card()
             for card in cards {
-                print("\(card.id?.uuidString)")
                 if card.id?.uuidString == entity.name {
                     actualCard = card
 
