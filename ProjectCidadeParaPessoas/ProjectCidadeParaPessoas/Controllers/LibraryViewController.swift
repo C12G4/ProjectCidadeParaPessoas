@@ -99,7 +99,6 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let card = cards[indexPath.row]
         if let audioPath = card.audio {
             let url = audioService.resolveAudioURL(from: audioPath)
-            print(url)
             if FileManager.default.fileExists(atPath: url.path) {
                 do {
                     audioPlayer = try AVAudioPlayer(contentsOf: url)
