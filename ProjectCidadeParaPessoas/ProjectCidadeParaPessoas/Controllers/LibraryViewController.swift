@@ -118,7 +118,6 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 completionHandler(true)
                 return
             }
-
             let card = self.cards[indexPath.row]
 
             if let audioPath = card.audio {
