@@ -13,6 +13,13 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var cards: [Card] = []
     var audioPlayer: AVAudioPlayer?
     
+    let segmentedControl: SegmentedControl = {
+            let items = ["First", "Second", "Third"]
+            let control = SegmentedControl(items: items)
+            control.selectedSegmentIndex = 0
+            return control
+        }()
+    
     let tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
