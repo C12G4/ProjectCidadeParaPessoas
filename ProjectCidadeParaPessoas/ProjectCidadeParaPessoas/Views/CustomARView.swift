@@ -37,7 +37,6 @@ class CustomARView: ARView {
         
         if let entity = arView.entity(at: tapLocation) as? ModelEntity {
             let cards = CoreDataService.shared.fetchAllCards()
-            print("entity.name\(entity.name)")
             var actualCard = Card()
             for card in cards {
                 if card.id?.uuidString == entity.name {
@@ -49,7 +48,6 @@ class CustomARView: ARView {
             print(url)
             if FileManager.default.fileExists(atPath: url.path) {
                 do {
-                    print("dentro do")
                     audioPlayer = try AVAudioPlayer(contentsOf: url)
                     audioPlayer?.prepareToPlay()
                     audioPlayer?.play()
