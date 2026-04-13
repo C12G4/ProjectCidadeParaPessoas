@@ -42,7 +42,7 @@ class CoreDataService: ObservableObject{
         
         let card = Card(context: viewContext)
         
-        card.id = UUID()
+        card.id = id
         card.name = name
         card.lat = lat
         card.longe = longe

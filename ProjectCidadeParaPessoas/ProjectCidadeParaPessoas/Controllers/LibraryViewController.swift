@@ -98,7 +98,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let card = cards[indexPath.row]
         if let audioPath = card.audio {
-            let url = resolveAudioURL(from: audioPath)
+            let url = audioService.resolveAudioURL(from: audioPath)
+            print(url)
             if FileManager.default.fileExists(atPath: url.path) {
                 do {
                     audioPlayer = try AVAudioPlayer(contentsOf: url)
@@ -122,7 +123,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             let card = self.cards[indexPath.row]
 
             if let audioPath = card.audio {
-                let url = self.resolveAudioURL(from: audioPath)
+                let url = audioService.resolveAudioURL(from: audioPath)
                 try? FileManager.default.removeItem(at: url)
             }
 
@@ -132,18 +133,5 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         
         return UISwipeActionsConfiguration(actions: [deleteAction])
-    }
-
-    private func resolveAudioURL(from storedValue: String) -> URL {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileName = URL(fileURLWithPath: storedValue).lastPathComponent
-        let localURL = documentsURL.appendingPathComponent(fileName)
-
-        if FileManager.default.fileExists(atPath: localURL.path) {
-            return localURL
-        }
-
-        guard storedValue.hasPrefix("/") else { return localURL }
-        return URL(fileURLWithPath: storedValue)
     }
 }

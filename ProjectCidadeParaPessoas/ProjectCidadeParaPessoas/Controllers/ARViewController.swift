@@ -125,6 +125,7 @@ class ARViewController: UIViewController {
         audioButton.layer.zPosition = 10
         let tapGesture = UITapGestureRecognizer(target: customARView,
                                                 action: #selector(customARView.handleTap))
+        customARView.defineAudioService(audioService: audioService)
         customARView.addGestureRecognizer(tapGesture)
         //add subviews
         view.addSubview(customARView)
@@ -217,13 +218,15 @@ class ARViewController: UIViewController {
     }
 
     func creatARObj() {
-        customARView.anchor.addChild(customARViewModel.creatObj(color: .purple, cameraTransform : customARView.cameraTransform))
+        let id = UUID()
+        let stringID = id.uuidString
+        customARView.anchor.addChild(customARViewModel.creatObj(color: .purple, cameraTransform : customARView.cameraTransform, id: stringID))
         
         if let audioPath = audioService.getAudioFilePath() {
             let location = geoService.getActualLocation() ?? CLLocation(latitude: 0, longitude: 0)
             _ = CoreDataService.shared.createCard(
                 name: "Audio \(Date().formatted(date: .abbreviated, time: .shortened))",
-                id: UUID(),
+                id: id,
                 lat: location.coordinate.latitude,
                 longe: location.coordinate.longitude,
                 audio: audioPath,

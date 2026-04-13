@@ -8,6 +8,7 @@
 import UIKit
 import UniformTypeIdentifiers
 import CoreTransferable
+import RealityKit
 
 nonisolated
 struct Person: Decodable, Encodable, Sendable {
