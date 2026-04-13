@@ -34,6 +34,12 @@ class CustomARView: ARView {
         let tapLocation = recognizer.location(in: arView)
         
         if let entity = arView.entity(at: tapLocation) as? ModelEntity {
+            //como atrelar o cubo e informacoes?
+            //id do cubo
+            //fecht na lista do core data para pegar informacoes do cubo
+            //exibir sheet customizada com infos do cubo :)
+            //trigar sheet
+            
             print("bloco")
         }
     }
