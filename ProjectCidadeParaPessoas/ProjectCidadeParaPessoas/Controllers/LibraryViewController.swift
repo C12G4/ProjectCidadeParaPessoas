@@ -12,6 +12,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     let audioService: AudioService
     var cards: [Card] = []
     var audioPlayer: AVAudioPlayer?
+
     
     let segmentedControl: SegmentedControl = {
             let items = ["First", "Second", "Third"]
@@ -19,6 +20,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             control.selectedSegmentIndex = 0
             return control
         }()
+    
     
     let tableView: UITableView = {
         let table = UITableView()
@@ -54,22 +56,25 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func setupUI() {
-        view.addSubview(titleLabel)
         view.addSubview(tableView)
+        view.addSubview(segmentedControl)
         
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
+     
+        
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            segmentedControl.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
+            segmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            tableView.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
         ])
     }
     
@@ -139,4 +144,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
+}
+
+#Preview{
+    LibraryViewController(audioService: AudioService())
 }
