@@ -12,8 +12,31 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     let audioService: AudioService
     var cards: [Card] = []
     var audioPlayer: AVAudioPlayer?
+    var selector = UISegmentedControl(items: ["Minhas histórias", "Histórias da cidade"])
+    
+    private func configureSegmentedControl(){
+        
+        selector.selectedSegmentIndex = 0
+        selector.addTarget(self, action: #selector(numberHasChanged), for: .valueChanged)
+        selector.translatesAutoresizingMaskIntoConstraints = false
+    }
     
     
+    @objc
+    func  numberHasChanged(control: UISegmentedControl){
+        switch selector.selectedSegmentIndex{
+        case 0:
+            cards = CoreDataService.shared.fetchCardByNaoCompartilhado()
+            tableView.reloadData()
+        case 1:
+            cards = CoreDataService.shared.fetchCardByCompartilhado()
+            tableView.reloadData()
+        default:
+            cards = CoreDataService.shared.fetchAllCards()
+            tableView.reloadData()
+        }
+        
+    }
     
     let tableView: UITableView = {
         let table = UITableView()
@@ -46,25 +69,31 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         view.backgroundColor = .systemGray5
         setupUI()
         loadCards()
+        configureSegmentedControl()
     }
     
     func setupUI() {
-        view.addSubview(titleLabel)
         view.addSubview(tableView)
+        view.addSubview(selector)
         
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
         
+        
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+         
             
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            tableView.topAnchor.constraint(equalTo: selector.bottomAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            selector.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            selector.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+
+            
         ])
     }
     
@@ -121,12 +150,12 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 return
             }
             let card = self.cards[indexPath.row]
-
+            
             if let audioPath = card.audio {
                 let url = audioService.resolveAudioURL(from: audioPath)
                 try? FileManager.default.removeItem(at: url)
             }
-
+            
             CoreDataService.shared.deleteCard(card)
             self.loadCards()
             completionHandler(true)
