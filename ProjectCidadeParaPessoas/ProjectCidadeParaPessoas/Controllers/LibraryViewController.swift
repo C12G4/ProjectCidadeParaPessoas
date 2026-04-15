@@ -13,6 +13,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var cards: [Card] = []
     var audioPlayer: AVAudioPlayer?
     
+    
+    
     let tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
