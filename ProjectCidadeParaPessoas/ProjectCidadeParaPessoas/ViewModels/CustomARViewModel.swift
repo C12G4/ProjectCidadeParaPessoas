@@ -26,7 +26,7 @@ class CustomARViewModel {
         initialLocation = geoService.getActualLocation()!
     }
     
-    func creatObj(color: UIColor, cameraTransform: Transform) -> ModelEntity{
+    func creatObj(color: UIColor, cameraTransform: Transform, id: String) -> ModelEntity{
         let object = MeshResource.generateBox(size: 0.1)
         let material = SimpleMaterial(color: color, isMetallic: false)
         let entity = ModelEntity(mesh: object, materials: [material])
@@ -35,7 +35,7 @@ class CustomARViewModel {
         entity.position.y = 0
         entity.position.z = cameraTransform.translation.z
         entity.generateCollisionShapes(recursive: true)
-    
+        entity.name = id
         return entity
     }
     
@@ -79,10 +79,11 @@ class CustomARViewModel {
             entity.position.y = 0
             entity.position.z = cardPosition.z * 1000000
             entity.generateCollisionShapes(recursive: true)
+            entity.name = card.id?.uuidString ?? "No ID"
             
             arView.anchor.addChild(entity)
-            print("x = \(entity.position.x)")
-            print("z = \(entity.position.z))")
+//            print("x = \(entity.position.x)")
+//            print("z = \(entity.position.z))")
             
             count += 0.25
         }

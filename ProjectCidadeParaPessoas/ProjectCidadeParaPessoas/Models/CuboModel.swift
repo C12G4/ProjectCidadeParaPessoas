@@ -8,6 +8,7 @@
 import UIKit
 import UniformTypeIdentifiers
 import CoreTransferable
+import RealityKit
 
 nonisolated
 struct Person: Decodable, Encodable, Sendable {
@@ -18,6 +19,7 @@ struct Person: Decodable, Encodable, Sendable {
     let audio: String
     let compartilhado: Bool
     let audioData: Data?
+    let date: Date
 }
 
 extension UTType {
@@ -35,6 +37,7 @@ class PersonObject: NSObject, Encodable, Decodable{
     let audio: String
     let compartilhado: Bool
     let audioData: Data?
+    let date: Date
     
     init(person: Person) {
         self.name = person.name
@@ -44,6 +47,7 @@ class PersonObject: NSObject, Encodable, Decodable{
         self.audio = person.audio
         self.compartilhado = person.compartilhado
         self.audioData = person.audioData
+        self.date = person.date
     }
 }
 

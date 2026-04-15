@@ -8,9 +8,12 @@ import UIKit
 import ARKit
 import RealityKit
 import Foundation
+import CoreData
 
 class CustomARView: ARView {
     var anchor = AnchorEntity(world: .zero)
+    var audioService: AudioService?
+    var audioPlayer: AVAudioPlayer?
     
     required init(frame: CGRect){
         super.init(frame: frame)
@@ -22,7 +25,6 @@ class CustomARView: ARView {
     
     convenience init(){
         self.init(frame: UIScreen.main.bounds)
-
         let configuration = ARWorldTrackingConfiguration()
         configuration.worldAlignment = .gravityAndHeading
         session.run(configuration)
@@ -34,7 +36,29 @@ class CustomARView: ARView {
         let tapLocation = recognizer.location(in: arView)
         
         if let entity = arView.entity(at: tapLocation) as? ModelEntity {
-            print("bloco")
+            let cards = CoreDataService.shared.fetchAllCards()
+            var actualCard = Card()
+            for card in cards {
+                if card.id?.uuidString == entity.name {
+                    actualCard = card
+
+                }
+            }
+            let url = audioService!.resolveAudioURL(from: actualCard.audio ?? "")
+            print(url)
+            if FileManager.default.fileExists(atPath: url.path) {
+                do {
+                    audioPlayer = try AVAudioPlayer(contentsOf: url)
+                    audioPlayer?.prepareToPlay()
+                    audioPlayer?.play()
+                } catch {
+                    print("Error playing audio: \(error)")
+                }
+            }
         }
     }
+    func defineAudioService(audioService: AudioService){
+        self.audioService = audioService
+    }
+    
 }

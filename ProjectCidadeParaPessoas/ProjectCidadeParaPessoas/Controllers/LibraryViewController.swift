@@ -16,6 +16,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var expandedIndexPath: IndexPath?
     var playingIndexPath: IndexPath?
     
+    
+    
     let tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -145,7 +147,6 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 completionHandler(true)
                 return
             }
-
             let card = self.cards[indexPath.row]
 
             if let audioPath = card.audio {
