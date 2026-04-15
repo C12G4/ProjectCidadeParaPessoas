@@ -187,20 +187,6 @@ class LibraryAudioCell: UITableViewCell {
             subtitleLabel.text = ""
         }
 
-        let palette: [UIColor] = [
-            UIColor(red: 1.00, green: 0.95, blue: 0.84, alpha: 1.00),
-            UIColor(red: 1.00, green: 0.78, blue: 0.35, alpha: 1.00),
-            UIColor(red: 1.00, green: 0.62, blue: 0.00, alpha: 1.00),
-            UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1.00)
-        ]
-
-        let baseColor = isExpanded ? palette[2] : palette[min(row % 3, 2)]
-        cardContainer.backgroundColor = baseColor
-
-        let isDark = (baseColor == palette[3])
-        titleLabel.textColor = isDark ? .white : .black
-        subtitleLabel.textColor = isDark ? UIColor(white: 1, alpha: 0.65) : UIColor(white: 0.10, alpha: 0.70)
-
         setExpanded(isExpanded)
     }
 

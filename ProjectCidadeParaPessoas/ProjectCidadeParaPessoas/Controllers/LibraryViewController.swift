@@ -45,7 +45,6 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 1.00, green: 0.98, blue: 0.94, alpha: 1.00)
         setupUI()
         loadCards()
     }
