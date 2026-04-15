@@ -21,18 +21,21 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         selector.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    private func changeText(text: String){
-        print("mudei para a outra opcao")
-    }
     
     @objc
     func  numberHasChanged(control: UISegmentedControl){
         switch selector.selectedSegmentIndex{
         case 0:
-            changeText(text: "bleble")
+            cards = CoreDataService.shared.fetchCardByNaoCompartilhado()
+            tableView.reloadData()
+        case 1:
+            cards = CoreDataService.shared.fetchCardByCompartilhado()
+            tableView.reloadData()
         default:
-            changeText(text: "whatever")
+            cards = CoreDataService.shared.fetchAllCards()
+            tableView.reloadData()
         }
+        
     }
     
     let tableView: UITableView = {
