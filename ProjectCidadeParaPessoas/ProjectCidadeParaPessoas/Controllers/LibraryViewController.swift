@@ -8,16 +8,20 @@
 import UIKit
 import AVFoundation
 
-class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, AVAudioPlayerDelegate {
     let audioService: AudioService
     var cards: [Card] = []
     var audioPlayer: AVAudioPlayer?
+    var meterTimer: Timer?
+    var expandedIndexPath: IndexPath?
+    var playingIndexPath: IndexPath?
     
     let tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "AudioCell")
-        table.backgroundColor = .systemGray6
+        table.register(LibraryAudioCell.self, forCellReuseIdentifier: "AudioCell")
+        table.backgroundColor = .clear
+        table.separatorStyle = .none
         return table
     }()
     
@@ -25,11 +29,11 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Biblioteca de Conteudos"
-        label.font = UIFont.boldSystemFont(ofSize: 18)
-        label.textColor = .white
+        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.textColor = .black
         return label
     }()
-    
+
     init(audioService: AudioService) {
         self.audioService = audioService
         super.init(nibName: nil, bundle: nil)
@@ -41,7 +45,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGray5
+        view.backgroundColor = UIColor(red: 1.00, green: 0.98, blue: 0.94, alpha: 1.00)
         setupUI()
         loadCards()
     }
@@ -53,7 +57,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 80
+        tableView.estimatedRowHeight = 140
+        tableView.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: 20, right: 0)
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
@@ -62,7 +67,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
@@ -76,40 +81,63 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "AudioCell", for: indexPath)
-        let card = cards[indexPath.row]
-        
-        var config = cell.defaultContentConfiguration()
-        config.text = card.name ?? "Áudio"
-        
-        if let audioPath = card.audio {
-            let fileName = URL(fileURLWithPath: audioPath).lastPathComponent
-            config.secondaryText = fileName
-        } else {
-            config.secondaryText = ""
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "AudioCell", for: indexPath) as? LibraryAudioCell else {
+            return UITableViewCell()
         }
-        
-        cell.contentConfiguration = config
-        cell.accessoryType = .disclosureIndicator
+        let card = cards[indexPath.row]
+
+        let isExpanded = indexPath == expandedIndexPath
+        cell.configure(card: card, isExpanded: isExpanded, row: indexPath.row)
+
+        if isExpanded,
+           let player = audioPlayer,
+           player.isPlaying,
+           indexPath == playingIndexPath {
+            let seed = card.id?.uuidString.hashValue ?? indexPath.row
+            cell.startPlaybackUI(with: player, seed: seed)
+        }
+        else {
+            cell.stopPlaybackUI()
+        }
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let card = cards[indexPath.row]
-        if let audioPath = card.audio {
-            let url = resolveAudioURL(from: audioPath)
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-                    audioPlayer = try AVAudioPlayer(contentsOf: url)
-                    audioPlayer?.prepareToPlay()
-                    audioPlayer?.play()
-                } catch {
-                    print("Error playing audio: \(error)")
-                }
-            }
+        defer {
+            tableView.deselectRow(at: indexPath, animated: true)
         }
-        tableView.deselectRow(at: indexPath, animated: true)
+
+        let card = cards[indexPath.row]
+        guard let audioPath = card.audio else { return }
+
+        let url = audioService.resolveAudioURL(from: audioPath)
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+
+        let player = try? AVAudioPlayer(contentsOf: url)
+        guard let player else { return }
+
+        audioPlayer?.stop()
+        stopMetering()
+        audioPlayer = player
+        audioPlayer?.delegate = self
+        audioPlayer?.isMeteringEnabled = true
+        audioPlayer?.prepareToPlay()
+        audioPlayer?.play()
+
+        let previousExpanded = expandedIndexPath
+        expandedIndexPath = indexPath
+        playingIndexPath = indexPath
+
+        var indexPathsToReload: [IndexPath] = [indexPath]
+        if let previousExpanded, previousExpanded != indexPath {
+            indexPathsToReload.append(previousExpanded)
+        }
+
+        tableView.reloadRows(at: indexPathsToReload, with: .automatic)
+        tableView.performBatchUpdates(nil)
+
+        startMetering(with: player)
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -122,11 +150,20 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             let card = self.cards[indexPath.row]
 
             if let audioPath = card.audio {
-                let url = self.resolveAudioURL(from: audioPath)
+                let url = self.audioService.resolveAudioURL(from: audioPath)
                 try? FileManager.default.removeItem(at: url)
+
+                if self.audioPlayer?.url?.lastPathComponent == url.lastPathComponent {
+                    self.audioPlayer?.stop()
+                    self.stopPlaybackUI()
+                }
             }
 
             CoreDataService.shared.deleteCard(card)
+
+            self.expandedIndexPath = nil
+            self.playingIndexPath = nil
+
             self.loadCards()
             completionHandler(true)
         }
@@ -134,16 +171,51 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
-    private func resolveAudioURL(from storedValue: String) -> URL {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileName = URL(fileURLWithPath: storedValue).lastPathComponent
-        let localURL = documentsURL.appendingPathComponent(fileName)
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        stopPlaybackUI()
+    }
 
-        if FileManager.default.fileExists(atPath: localURL.path) {
-            return localURL
+    func stopPlaybackUI() {
+        stopMetering()
+        if let playingIndexPath,
+           let cell = tableView.cellForRow(at: playingIndexPath) as? LibraryAudioCell {
+            cell.stopPlaybackUI()
+        }
+        playingIndexPath = nil
+    }
+
+    func startMetering(with player: AVAudioPlayer) {
+        stopMetering()
+
+        meterTimer = Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { [weak self, weak player] _ in
+            guard let self = self, let player = player, player.isPlaying else { return }
+            player.updateMeters()
+            let averagePower = player.averagePower(forChannel: 0)
+            let peakPower = player.peakPower(forChannel: 0)
+
+            let averageLevel = pow(10, averagePower / 20)
+            let peakLevel = pow(10, peakPower / 20)
+
+            let combinedLevel = (averageLevel * 0.65) + (peakLevel * 0.35)
+            let boostedLevel = min(max(pow(combinedLevel, 0.42), 0), 1)
+
+            if let playingIndexPath = self.playingIndexPath,
+               let cell = self.tableView.cellForRow(at: playingIndexPath) as? LibraryAudioCell {
+                cell.waveformView.addLevel(Float(boostedLevel))
+            }
         }
 
-        guard storedValue.hasPrefix("/") else { return localURL }
-        return URL(fileURLWithPath: storedValue)
+        if let meterTimer {
+            RunLoop.main.add(meterTimer, forMode: .common)
+        }
+    }
+
+    func stopMetering() {
+        meterTimer?.invalidate()
+        meterTimer = nil
+    }
+
+    deinit {
+        stopMetering()
     }
 }
