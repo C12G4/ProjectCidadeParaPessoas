@@ -294,4 +294,16 @@ class ARViewController: UIViewController {
         }
         present(libraryVC, animated: true)
     }
+    
+    func openCube(name: String, audio: String, date: String) {
+        let audioSheet = AudioSheetController()
+        audioSheet.nameLabel.text = name
+        audioSheet.audioUrl = audio
+        audioSheet.dateLabel.text = date
+        if let cubeSheet = audioSheet.sheetPresentationController {
+            cubeSheet.detents = [.medium(), .large()]
+            cubeSheet.prefersGrabberVisible = true
+        }
+        present(audioSheet, animated: true)
+    }
 }

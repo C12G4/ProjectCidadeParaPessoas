@@ -31,21 +31,21 @@ class CustomARView: ARView {
         self.scene.addAnchor(anchor)
     }
     
-    @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
+    @objc func handleTap(_ recognizer: UITapGestureRecognizer, arViewController: ARViewController) {
         let arView = self
         let tapLocation = recognizer.location(in: arView)
         
         if let entity = arView.entity(at: tapLocation) as? ModelEntity {
             let cards = CoreDataService.shared.fetchAllCards()
-            print("entity.name\(entity.name)")
             var actualCard = Card()
             for card in cards {
-                print("\(card.id?.uuidString)")
                 if card.id?.uuidString == entity.name {
                     actualCard = card
 
                 }
             }
+            arViewController.openCube(name: actualCard.name!, audio: actualCard.audio!, date: actualCard.id!.uuidString)
+            
             let url = audioService!.resolveAudioURL(from: actualCard.audio ?? "")
             print(url)
             if FileManager.default.fileExists(atPath: url.path) {
@@ -63,5 +63,4 @@ class CustomARView: ARView {
     func defineAudioService(audioService: AudioService){
         self.audioService = audioService
     }
-    
 }
