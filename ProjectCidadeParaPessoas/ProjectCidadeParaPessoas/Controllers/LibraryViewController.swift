@@ -15,7 +15,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var selector = UISegmentedControl(items: ["Minhas histórias", "Histórias da cidade"])
     
     private func configureSegmentedControl(){
-        selector.selectedSegmentTintColor = .systemTeal
+        
         selector.selectedSegmentIndex = 0
         selector.addTarget(self, action: #selector(numberHasChanged), for: .valueChanged)
         selector.translatesAutoresizingMaskIntoConstraints = false
