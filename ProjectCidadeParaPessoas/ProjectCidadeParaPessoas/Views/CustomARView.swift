@@ -44,7 +44,10 @@ class CustomARView: ARView {
 
                 }
             }
-            arViewController.openCube(name: actualCard.name!, audio: actualCard.audio!, date: actualCard.id!.uuidString)
+            SheetService.shared.name = actualCard.name!
+            SheetService.shared.audio = actualCard.audio!
+            SheetService.shared.date = actualCard.id!.uuidString
+            SheetService.shared.isSheetShowing = true
             
             let url = audioService!.resolveAudioURL(from: actualCard.audio ?? "")
             print(url)
