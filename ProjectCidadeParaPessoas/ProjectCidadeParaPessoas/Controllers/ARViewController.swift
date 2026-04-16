@@ -231,11 +231,47 @@ class ARViewController: UIViewController {
         }
     }
 
+    func presentAudioSheet(for entityName: String) {
+        let cards = CoreDataService.shared.fetchAllCards()
+        guard let card = cards.first(where: { $0.id?.uuidString == entityName }),
+              let audio = card.audio else { return }
+
+        let audioSheet = AudioSheetController()
+        let dateText: String
+
+        if let date = card.date {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "pt_BR")
+            formatter.dateFormat = "dd 'de' MMMM, yyyy"
+            dateText = formatter.string(from: date).capitalized
+        }
+        else {
+            dateText = ""
+        }
+
+        audioSheet.configure(
+            name: card.name ?? "Meu relato",
+            date: dateText,
+            audioUrl: audio
+        )
+        audioSheet.modalPresentationStyle = .pageSheet
+
+        if let cubeSheet = audioSheet.sheetPresentationController {
+            cubeSheet.detents = [.medium(), .large()]
+            cubeSheet.prefersGrabberVisible = true
+        }
+
+        present(audioSheet, animated: true)
+    }
+
     func setupController() {
         audioButton.layer.zPosition = 20
         let tapGesture = UITapGestureRecognizer(target: customARView,
-                                                action: #selector(customARView.handleTap))
+                                                action: #selector(CustomARView.handleTap(_:)))
         customARView.defineAudioService(audioService: audioService)
+        customARView.onCubeTapped = { [weak self] entityName in
+            self?.presentAudioSheet(for: entityName)
+        }
         customARView.addGestureRecognizer(tapGesture)
         
         view.addSubview(customARView)
@@ -354,22 +390,5 @@ class ARViewController: UIViewController {
         bounce.isRemovedOnCompletion = true
 
         sheetContainerView.layer.add(bounce, forKey: sheetSavedBounceAnimationKey)
-    }
-    
-    func openCube(name: String, audio: String, date: String) {
-        let audioSheet = AudioSheetController()
-        audioSheet.nameLabel.text = name
-        print(name)
-        audioSheet.audioUrl = audio
-        print(audio)
-        audioSheet.dateLabel.text = date
-        print(date)
-        if let cubeSheet = audioSheet.sheetPresentationController {
-            cubeSheet.detents = [.medium(), .large()]
-            cubeSheet.prefersGrabberVisible = true
-            print(true)
-        }
-        present(audioSheet, animated: true)
-        print("present")
     }
 }

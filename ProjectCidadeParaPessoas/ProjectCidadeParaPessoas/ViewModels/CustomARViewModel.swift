@@ -9,7 +9,6 @@ import UIKit
 import RealityKit
 import ARKit
 import Foundation
-import SwiftUI
 
 class CustomARViewModel {
     private var initialLocation = CLLocation(latitude: 0, longitude: 0)
