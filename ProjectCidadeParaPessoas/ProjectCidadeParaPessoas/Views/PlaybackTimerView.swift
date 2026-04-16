@@ -14,9 +14,11 @@ class PlaybackTimerView: UIView {
     let label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: .regular)
-        label.textColor = UIColor(named: "OffBlackColor") ?? .label
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 14, weight: .semibold)
+        label.textColor = UIColor(named: "OffBlackColor") ?? .black
         label.text = "00:00 / 00:00"
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.9
         return label
     }()
 
@@ -34,12 +36,15 @@ class PlaybackTimerView: UIView {
     }
 
     func setupUI() {
+        backgroundColor = .clear
         addSubview(label)
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        label.setContentHuggingPriority(.required, for: .horizontal)
         NSLayoutConstraint.activate([
             label.topAnchor.constraint(equalTo: topAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor),
             label.leadingAnchor.constraint(equalTo: leadingAnchor),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor)
+            label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor)
         ])
     }
 

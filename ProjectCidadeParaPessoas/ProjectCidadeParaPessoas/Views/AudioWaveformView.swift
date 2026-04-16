@@ -120,7 +120,7 @@ class AudioWaveformView: UIView {
         for _ in 0..<barCount {
             let bar = UIView()
             bar.translatesAutoresizingMaskIntoConstraints = false
-            bar.backgroundColor = .black
+            bar.backgroundColor = UIColor(named: "OffBlackColor") ?? .darkGray
             bar.alpha = 0.92
             bar.layer.cornerRadius = 2
 
