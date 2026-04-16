@@ -87,7 +87,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func setupUI() {
-        view.addSubview(closeButton)
+//        view.addSubview(closeButton)
         view.addSubview(selector)
         view.addSubview(tableView)
         
@@ -97,12 +97,12 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.estimatedRowHeight = 180
         
         NSLayoutConstraint.activate([
-            closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
-            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            closeButton.widthAnchor.constraint(equalToConstant: 36),
-            closeButton.heightAnchor.constraint(equalToConstant: 36),
+//            closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
+//            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+//            closeButton.widthAnchor.constraint(equalToConstant: 36),
+//            closeButton.heightAnchor.constraint(equalToConstant: 36),
             
-            selector.topAnchor.constraint(equalTo: view.topAnchor, constant: 52),
+            selector.topAnchor.constraint(equalTo: view.topAnchor),
             selector.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             selector.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
