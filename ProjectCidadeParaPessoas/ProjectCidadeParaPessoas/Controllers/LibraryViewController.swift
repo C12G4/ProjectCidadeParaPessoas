@@ -199,12 +199,12 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
 
-        activityController.completionWithItemsHandler = { [weak self] _, completed, _, _ in
-            guard let self, completed else { return }
-            card.compartilhado = true
-            CoreDataService.shared.saveContext()
-            self.refreshCardsForCurrentSegment()
-        }
+//        activityController.completionWithItemsHandler = { [weak self] _, completed, _, _ in
+//            guard let self, completed else { return }
+//            card.compartilhado = true
+//            CoreDataService.shared.saveContext()
+//            self.refreshCardsForCurrentSegment()
+//        }
 
         present(activityController, animated: true)
     }
