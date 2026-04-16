@@ -156,7 +156,57 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             self?.togglePlayPause(at: indexPath)
         }
 
+        cell.onShareTapped = { [weak self] in
+            self?.shareCard(at: indexPath)
+        }
+
         return cell
+    }
+
+    func shareCard(at indexPath: IndexPath) {
+        guard cards.indices.contains(indexPath.row) else { return }
+
+        let card = cards[indexPath.row]
+        let audioName = card.audio ?? ""
+        let audioURL = audioService.resolveAudioURL(from: audioName)
+        let audioData = try? Data(contentsOf: audioURL)
+
+        let person = Person(
+            name: card.name ?? "Untitled Audio",
+            id: card.id ?? UUID(),
+            lat: card.lat,
+            longe: card.longe,
+            audio: audioName,
+            compartilhado: true,
+            audioData: audioData,
+            date: card.date ?? Date()
+        )
+        let personObject = PersonObject(person: person)
+
+        let activityController = UIActivityViewController(
+            activityItems: [personObject],
+            applicationActivities: nil
+        )
+
+        if let popover = activityController.popoverPresentationController {
+            if let cell = tableView.cellForRow(at: indexPath) as? LibraryAudioCell {
+                popover.sourceView = cell.shareButtonContainer
+                popover.sourceRect = cell.shareButtonContainer.bounds
+            }
+            else {
+                popover.sourceView = view
+                popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+            }
+        }
+
+        activityController.completionWithItemsHandler = { [weak self] _, completed, _, _ in
+            guard let self, completed else { return }
+            card.compartilhado = true
+            CoreDataService.shared.saveContext()
+            self.refreshCardsForCurrentSegment()
+        }
+
+        present(activityController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

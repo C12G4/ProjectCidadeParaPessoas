@@ -8,7 +8,6 @@
 import UIKit
 import AVFoundation
 
-// MARK: - Liquid Glass Button
 class LiquidGlassButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -20,8 +19,7 @@ class LiquidGlassButton: UIButton {
         setupLiquidGlass()
     }
     
-    private func setupLiquidGlass() {
-        // Configure button with white transparent background
+    func setupLiquidGlass() {
         backgroundColor = UIColor.white.withAlphaComponent(0.35)
         tintColor = UIColor(named: "OffBlackColor") ?? .label
         layer.cornerRadius = 20
@@ -96,6 +94,7 @@ class LibraryAudioCell: UITableViewCell {
     }()
 
     var onPlayPauseToggle: (() -> Void)?
+    var onShareTapped: (() -> Void)?
 
     let timerView: PlaybackTimerView = {
         let view = PlaybackTimerView()
@@ -146,6 +145,7 @@ class LibraryAudioCell: UITableViewCell {
         playPillView.addSubview(playIconView)
 
         shareButtonContainer.layer.cornerCurve = .continuous
+        shareButtonContainer.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
         playPillView.addTarget(self, action: #selector(playPauseButtonTapped), for: .touchUpInside)
 
         expandedHeightConstraint = expandableContainer.heightAnchor.constraint(equalToConstant: 0)
@@ -252,5 +252,9 @@ class LibraryAudioCell: UITableViewCell {
 
     @objc func playPauseButtonTapped() {
         onPlayPauseToggle?()
+    }
+
+    @objc func shareButtonTapped() {
+        onShareTapped?()
     }
 }
