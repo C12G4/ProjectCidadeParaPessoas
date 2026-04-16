@@ -15,7 +15,7 @@ class PlaybackTimerView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: .regular)
-        label.textColor = .label
+        label.textColor = UIColor(named: "OffBlackColor") ?? .label
         label.text = "00:00 / 00:00"
         return label
     }()

@@ -20,8 +20,8 @@ class LibraryAudioCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 33, weight: .bold)
-        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        label.textColor = UIColor(named: "OffBlackColor") ?? .label
         label.numberOfLines = 1
         return label
     }()
@@ -29,8 +29,8 @@ class LibraryAudioCell: UITableViewCell {
     let subtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 28, weight: .regular)
-        label.textColor = UIColor(white: 0.15, alpha: 0.70)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.textColor = (UIColor(named: "ButtonColor") ?? .secondaryLabel).withAlphaComponent(0.9)
         label.numberOfLines = 1
         return label
     }()
@@ -54,7 +54,7 @@ class LibraryAudioCell: UITableViewCell {
     let shareImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "square.and.arrow.up"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.tintColor = .black
+        imageView.tintColor = UIColor(named: "OffBlackColor") ?? .label
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
@@ -71,10 +71,12 @@ class LibraryAudioCell: UITableViewCell {
     let playIconView: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "play.fill"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.tintColor = .black
+        imageView.tintColor = UIColor(named: "OffBlackColor") ?? .label
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
+
+    var onPlayPauseToggle: (() -> Void)?
 
     let timerView: PlaybackTimerView = {
         let view = PlaybackTimerView()
@@ -124,6 +126,9 @@ class LibraryAudioCell: UITableViewCell {
 
         playPillView.addSubview(playIconView)
         shareButtonContainer.addSubview(shareImageView)
+
+        let playPillTap = UITapGestureRecognizer(target: self, action: #selector(playPauseButtonTapped))
+        playPillView.addGestureRecognizer(playPillTap)
 
         expandedHeightConstraint = expandableContainer.heightAnchor.constraint(equalToConstant: 0)
         expandedHeightConstraint?.isActive = true
@@ -178,10 +183,21 @@ class LibraryAudioCell: UITableViewCell {
     }
 
     func configure(card: Card, isExpanded: Bool, row: Int) {
-        titleLabel.text = card.name ?? "Áudio"
+        let cardColors: [UIColor] = [
+            UIColor(named: "TertiaryColor") ?? .systemGray5,
+            UIColor(named: "SecondaryColor") ?? .systemGray4,
+            UIColor(named: "AccentColor") ?? .systemGray3
+        ]
+        let color = cardColors[row % cardColors.count]
+        cardContainer.backgroundColor = color
 
-        if let audioPath = card.audio {
-            subtitleLabel.text = URL(fileURLWithPath: audioPath).lastPathComponent
+        titleLabel.text = card.name ?? "Nome da Pessoa"
+
+        if let date = card.date {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "pt_BR")
+            formatter.dateFormat = "dd 'de' MMMM, yyyy"
+            subtitleLabel.text = formatter.string(from: date).capitalized
         }
         else {
             subtitleLabel.text = ""
@@ -202,6 +218,7 @@ class LibraryAudioCell: UITableViewCell {
         waveformView.setAnimationSeed(seed)
         waveformView.setProgress(0)
         waveformView.startAnimating()
+        updatePlayPauseIcon(isPlaying: true)
         timerView.onProgressChanged = { [weak self] progress in
             self?.waveformView.setProgress(progress)
         }
@@ -211,5 +228,15 @@ class LibraryAudioCell: UITableViewCell {
     func stopPlaybackUI() {
         timerView.stop()
         waveformView.stopAnimating()
+        updatePlayPauseIcon(isPlaying: false)
+    }
+
+    func updatePlayPauseIcon(isPlaying: Bool) {
+        let iconName = isPlaying ? "pause.fill" : "play.fill"
+        playIconView.image = UIImage(systemName: iconName)
+    }
+
+    @objc func playPauseButtonTapped() {
+        onPlayPauseToggle?()
     }
 }
