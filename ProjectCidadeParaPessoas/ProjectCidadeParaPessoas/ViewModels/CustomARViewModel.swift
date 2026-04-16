@@ -72,8 +72,6 @@ class CustomARViewModel {
             entity.name = card.id?.uuidString ?? "No ID"
             
             arView.anchor.addChild(entity)
-            print(entity.position.x)
-            print(entity.position.z)
         }
     }
     

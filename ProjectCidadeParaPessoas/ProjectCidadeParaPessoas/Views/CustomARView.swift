@@ -15,7 +15,7 @@ class CustomARView: ARView {
     var audioService: AudioService?
     var audioPlayer: AVAudioPlayer?
     var onCubeTapped: ((String) -> Void)?
-    
+
     required init(frame: CGRect){
         super.init(frame: frame)
     }

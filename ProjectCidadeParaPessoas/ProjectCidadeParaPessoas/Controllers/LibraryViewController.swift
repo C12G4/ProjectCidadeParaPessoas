@@ -16,6 +16,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var expandedIndexPath: IndexPath?
     var playingIndexPath: IndexPath?
     var onCloseTapped: (() -> Void)?
+    var custonARView: CustomARView? = nil
+    var custonARViewModel = CustomARViewModel()
 
     var selector = UISegmentedControl(items: ["Minhas histórias", "Histórias da cidade"])
 
@@ -272,7 +274,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
 
             CoreDataService.shared.deleteCard(card)
-            
+            custonARViewModel.deleteAllRenderd(arView: custonARView ?? CustomARView())
+            custonARViewModel.renderAllMemories(arView: custonARView ?? CustomARView())
             self.loadCards()
             completionHandler(true)
         }
