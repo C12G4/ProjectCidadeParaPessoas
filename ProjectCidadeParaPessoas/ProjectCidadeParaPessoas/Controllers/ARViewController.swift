@@ -180,6 +180,8 @@ class ARViewController: UIViewController {
             libraryHeightConstraint?.constant = collapsedSheetHeaderHeight - ((collapsedSheetHeaderHeight - expandedSheetHeaderHeight) * progress)
             audioButton.alpha = 1 - progress
             libraryViewController?.view.alpha = progress
+            libraryViewController?.custonARView = customARView
+            libraryViewController?.custonARViewModel = customARViewModel
             view.layoutIfNeeded()
 
         case .ended:
