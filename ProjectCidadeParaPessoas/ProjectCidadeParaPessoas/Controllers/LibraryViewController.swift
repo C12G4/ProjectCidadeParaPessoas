@@ -272,6 +272,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
 
             CoreDataService.shared.deleteCard(card)
+            
             self.loadCards()
             completionHandler(true)
         }

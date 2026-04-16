@@ -89,6 +89,7 @@ class ARViewController: UIViewController {
         }
         setAudioButtonRecordingState(isRecording: false)
         
+        customARViewModel.setInitialLocation()
         customARViewModel.renderAllMemories(arView: customARView)
     }
     
