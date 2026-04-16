@@ -14,6 +14,7 @@ class CustomARView: ARView {
     var anchor = AnchorEntity(world: .zero)
     var audioService: AudioService?
     var audioPlayer: AVAudioPlayer?
+    var onCubeTapped: ((String) -> Void)?
     
     required init(frame: CGRect){
         super.init(frame: frame)
@@ -35,30 +36,10 @@ class CustomARView: ARView {
         let arView = self
         let tapLocation = recognizer.location(in: arView)
         
-        if let entity = arView.entity(at: tapLocation) as? ModelEntity {
-            let cards = CoreDataService.shared.fetchAllCards()
-            var actualCard = Card()
-            for card in cards {
-                if card.id?.uuidString == entity.name {
-                    actualCard = card
-
-                }
-            }
-            let url = audioService!.resolveAudioURL(from: actualCard.audio ?? "")
-            print(url)
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-                    audioPlayer = try AVAudioPlayer(contentsOf: url)
-                    audioPlayer?.prepareToPlay()
-                    audioPlayer?.play()
-                } catch {
-                    print("Error playing audio: \(error)")
-                }
-            }
-        }
+        guard let entity = arView.entity(at: tapLocation) as? ModelEntity else { return }
+        onCubeTapped?(entity.name)
     }
     func defineAudioService(audioService: AudioService){
         self.audioService = audioService
     }
-    
 }

@@ -8,6 +8,29 @@
 import UIKit
 import AVFoundation
 
+class LiquidGlassButton: UIButton {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupLiquidGlass()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupLiquidGlass()
+    }
+    
+    func setupLiquidGlass() {
+        var config = UIButton.Configuration.glass()
+        config.baseForegroundColor = UIColor(named: "OffBlackColor") ?? .label
+        config.baseBackgroundColor = .clear
+        config.cornerStyle = .capsule
+        config.contentInsets = .zero
+        backgroundColor = .clear
+        tintColor = UIColor(named: "OffBlackColor") ?? .label
+        configuration = config
+    }
+}
+
 class LibraryAudioCell: UITableViewCell {
     let cardContainer: UIView = {
         let view = UIView()
@@ -30,7 +53,7 @@ class LibraryAudioCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.textColor = (UIColor(named: "ButtonColor") ?? .secondaryLabel).withAlphaComponent(0.9)
+        label.textColor = UIColor(named: "OffBlackColor") ?? .label
         label.numberOfLines = 1
         return label
     }()
@@ -42,30 +65,27 @@ class LibraryAudioCell: UITableViewCell {
         return view
     }()
 
-    let shareButtonContainer: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(white: 1.0, alpha: 0.28)
-        view.layer.cornerRadius = 18
-        view.alpha = 0
-        return view
+    let shareButtonContainer: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        var config = UIButton.Configuration.glass()
+        let configImage = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+        config.image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)
+        config.baseForegroundColor = UIColor(named: "OffBlackColor") ?? .label
+        config.baseBackgroundColor = .clear
+        config.cornerStyle = .capsule
+        config.contentInsets = .zero
+        button.backgroundColor = .clear
+        button.configuration = config
+        button.isHidden = true
+        return button
     }()
 
-    let shareImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(systemName: "square.and.arrow.up"))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.tintColor = UIColor(named: "OffBlackColor") ?? .label
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-
-    let playPillView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(white: 0.98, alpha: 0.20)
-        view.layer.cornerRadius = 20
-        view.alpha = 0
-        return view
+    let playPillView: UIButton = {
+        let button = LiquidGlassButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
+        return button
     }()
 
     let playIconView: UIImageView = {
@@ -77,6 +97,7 @@ class LibraryAudioCell: UITableViewCell {
     }()
 
     var onPlayPauseToggle: (() -> Void)?
+    var onShareTapped: (() -> Void)?
 
     let timerView: PlaybackTimerView = {
         let view = PlaybackTimerView()
@@ -117,18 +138,18 @@ class LibraryAudioCell: UITableViewCell {
         contentView.addSubview(cardContainer)
         cardContainer.addSubview(titleLabel)
         cardContainer.addSubview(subtitleLabel)
+        cardContainer.addSubview(shareButtonContainer)
         cardContainer.addSubview(expandableContainer)
 
-        expandableContainer.addSubview(timerView)
         expandableContainer.addSubview(waveformView)
         expandableContainer.addSubview(playPillView)
-        expandableContainer.addSubview(shareButtonContainer)
 
+        playPillView.addSubview(timerView)
         playPillView.addSubview(playIconView)
-        shareButtonContainer.addSubview(shareImageView)
 
-        let playPillTap = UITapGestureRecognizer(target: self, action: #selector(playPauseButtonTapped))
-        playPillView.addGestureRecognizer(playPillTap)
+        shareButtonContainer.layer.cornerCurve = .continuous
+        shareButtonContainer.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
+        playPillView.addTarget(self, action: #selector(playPauseButtonTapped), for: .touchUpInside)
 
         expandedHeightConstraint = expandableContainer.heightAnchor.constraint(equalToConstant: 0)
         expandedHeightConstraint?.isActive = true
@@ -141,26 +162,21 @@ class LibraryAudioCell: UITableViewCell {
 
             titleLabel.topAnchor.constraint(equalTo: cardContainer.topAnchor, constant: 18),
             titleLabel.leadingAnchor.constraint(equalTo: cardContainer.leadingAnchor, constant: 18),
-            titleLabel.trailingAnchor.constraint(equalTo: cardContainer.trailingAnchor, constant: -18),
+            titleLabel.trailingAnchor.constraint(equalTo: shareButtonContainer.leadingAnchor, constant: -12),
 
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
 
+            shareButtonContainer.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: -2),
+            shareButtonContainer.trailingAnchor.constraint(equalTo: cardContainer.trailingAnchor, constant: -18),
+            shareButtonContainer.widthAnchor.constraint(equalToConstant: 36),
+            shareButtonContainer.heightAnchor.constraint(equalToConstant: 36),
+
             expandableContainer.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 10),
             expandableContainer.leadingAnchor.constraint(equalTo: cardContainer.leadingAnchor),
             expandableContainer.trailingAnchor.constraint(equalTo: cardContainer.trailingAnchor),
             expandableContainer.bottomAnchor.constraint(equalTo: cardContainer.bottomAnchor),
-
-            shareButtonContainer.topAnchor.constraint(equalTo: expandableContainer.topAnchor, constant: 6),
-            shareButtonContainer.trailingAnchor.constraint(equalTo: expandableContainer.trailingAnchor, constant: -14),
-            shareButtonContainer.widthAnchor.constraint(equalToConstant: 36),
-            shareButtonContainer.heightAnchor.constraint(equalToConstant: 36),
-
-            shareImageView.centerXAnchor.constraint(equalTo: shareButtonContainer.centerXAnchor),
-            shareImageView.centerYAnchor.constraint(equalTo: shareButtonContainer.centerYAnchor),
-            shareImageView.widthAnchor.constraint(equalToConstant: 16),
-            shareImageView.heightAnchor.constraint(equalToConstant: 16),
 
             waveformView.centerYAnchor.constraint(equalTo: expandableContainer.centerYAnchor, constant: -6),
             waveformView.leadingAnchor.constraint(equalTo: expandableContainer.leadingAnchor, constant: 34),
@@ -173,6 +189,7 @@ class LibraryAudioCell: UITableViewCell {
 
             timerView.leadingAnchor.constraint(equalTo: playPillView.leadingAnchor, constant: 14),
             timerView.centerYAnchor.constraint(equalTo: playPillView.centerYAnchor),
+            timerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 80),
 
             playIconView.leadingAnchor.constraint(equalTo: timerView.trailingAnchor, constant: 10),
             playIconView.trailingAnchor.constraint(equalTo: playPillView.trailingAnchor, constant: -12),
@@ -210,8 +227,8 @@ class LibraryAudioCell: UITableViewCell {
         expandedHeightConstraint?.constant = expanded ? 260 : 0
         expandableContainer.alpha = expanded ? 1 : 0
         expandableContainer.isHidden = !expanded
-        shareButtonContainer.alpha = expanded ? 1 : 0
-        playPillView.alpha = expanded ? 1 : 0
+        shareButtonContainer.isHidden = !expanded
+        playPillView.isHidden = !expanded
     }
 
     func startPlaybackUI(with player: AVAudioPlayer, seed: Int) {
@@ -238,5 +255,9 @@ class LibraryAudioCell: UITableViewCell {
 
     @objc func playPauseButtonTapped() {
         onPlayPauseToggle?()
+    }
+
+    @objc func shareButtonTapped() {
+        onShareTapped?()
     }
 }

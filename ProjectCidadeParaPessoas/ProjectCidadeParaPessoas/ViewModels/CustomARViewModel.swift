@@ -9,21 +9,15 @@ import UIKit
 import RealityKit
 import ARKit
 import Foundation
-import SwiftUI
 
 class CustomARViewModel {
-    private var initialLocation = CLLocation()
-    private var actualLocation = CLLocation()
-    private var acualLocation = CLLocationDistance()
+    private var initialLocation = CLLocation(latitude: 0, longitude: 0)
     
     var fistTime: Bool = true
-    
-    var geoService = GeoSerive()
     var count = -0.1
     var numOfSons = 0
     
     init() {
-        initialLocation = geoService.getActualLocation()!
     }
     
     func creatObj(color: UIColor, cameraTransform: Transform, id: String) -> ModelEntity{
@@ -40,33 +34,14 @@ class CustomARViewModel {
     }
     
     private func gpsToSIMD3(lat: Double, lon: Double) -> SIMD3<Float> {
-        let radius = 6378.137
-        
-        let lon1 = initialLocation.coordinate.longitude * Double.pi / 180.0
-        let lat1 = initialLocation.coordinate.latitude * Double.pi / 180.0
-        
-        let lon2 = lon * Double.pi / 180
-        let lat2 = lat * Double.pi / 180
-        
         let dLat = (lat - initialLocation.coordinate.latitude) * Double.pi / 180.0
         let dLon = (lon - initialLocation.coordinate.longitude) * Double.pi / 180.0
-        
-        let a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) * sin(dLon/2) * sin(dLon/2)
-        let c = 2 * atan2(sqrt(a), sqrt(1-a))
-        
-        let z = sqrt(a) * radius
-        let x = sqrt(1-a) * radius
         
         return SIMD3<Float>(Float(dLat), Float(0), Float(dLon))
     }
     
-    private func updateActualLocation(){
-        actualLocation = geoService.getActualLocation()!
-    }
-    
     func renderAllMemories(arView: CustomARView) {
         let cards = CoreDataService.shared.fetchAllCards()
-        var count = 0.0
         for card in cards {
             let cardPosition = gpsToSIMD3(lat: card.lat, lon: card.longe)
             let object = MeshResource.generateBox(size: 0.1)
@@ -84,8 +59,6 @@ class CustomARViewModel {
             arView.anchor.addChild(entity)
 //            print("x = \(entity.position.x)")
 //            print("z = \(entity.position.z))")
-            
-            count += 0.25
         }
     }
     

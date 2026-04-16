@@ -10,11 +10,25 @@ import RealityKit
 import CoreLocation
 
 class ARViewController: UIViewController {
+    let sheetSavedBounceAnimationKey = "sheetSavedBounce"
+    let recordingSavedBounceAnimationKey = "recordingSavedBounce"
+
     let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
     let geoService = GeoSerive()
+    var libraryViewController: LibraryViewController?
+    
+    var libraryBottomConstraint: NSLayoutConstraint?
+    var libraryHeightConstraint: NSLayoutConstraint?
+    var panStartBottomConstant: CGFloat = 0
+    var isLibraryExpanded = false
+    let sheetHorizontalInset: CGFloat = 8
+    let collapsedSheetHeaderHeight: CGFloat = 140
+    let expandedSheetHeaderHeight: CGFloat = 64
+    let expandedSheetTopInset: CGFloat = 80
+    var panGesture: UIPanGestureRecognizer?
 
-    private let recordingSavedView: UIView = {
+    let recordingSavedView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor.systemGray4.withAlphaComponent(0.95)
@@ -26,7 +40,6 @@ class ARViewController: UIViewController {
     let customARView: CustomARView = {
         let view = CustomARView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        
         return view
     }()
     
@@ -34,76 +47,35 @@ class ARViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         
-        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
-        let image = UIImage(systemName: "microphone.fill", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        let configImage = UIImage.SymbolConfiguration(pointSize: 30)
+        let image = UIImage(systemName: "microphone.fill", withConfiguration: configImage)?.withTintColor(UIColor(named: "ButtonColor") ?? .systemGray4, renderingMode: .alwaysOriginal)
         
         var config = UIButton.Configuration.plain()
-        
         config.image = image
         config.imagePlacement = .all
-        config.background.backgroundColor = UIColor(named: "ButtonColor")
-        config.background.cornerRadius = 1000
-        config.imagePadding = 12.88
+        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         
         button.configuration = config
         return button
     }()
     
-    let searchButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
-        var configImage = UIImage.SymbolConfiguration(pointSize: 40, weight: .bold)
-        let image = UIImage(systemName: "magnifyingglass", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
-        
-        var config = UIButton.Configuration.plain()
-        
-        config.image = image
-        config.imagePlacement = .all
-        config.background.backgroundColor = UIColor(named: "ButtonColor")
-        config.background.cornerRadius = 1000
-        config.imagePadding = 12.88
-        
-        button.configuration = config
-        return button
+    let sheetGrabberView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(named: "ButtonColor") ?? .systemGray4
+        view.layer.cornerRadius = 2
+        return view
     }()
     
-    let shareButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
-        let configImage = UIImage.SymbolConfiguration(pointSize: 20)
-        let image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
-        
-        var config = UIButton.Configuration.plain()
-        
-        config.image = image
-        config.imagePlacement = .all
-        config.background.backgroundColor = UIColor(named: "ButtonColor")
-        config.background.cornerRadius = 1000
-        config.imagePadding = 12.88
-        
-        button.configuration = config
-        return button
-    }()
-    
-    let libraryButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
-        let configImage = UIImage.SymbolConfiguration(pointSize: 20)
-        let image = UIImage(systemName: "book.fill", withConfiguration: configImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
-        
-        var config = UIButton.Configuration.plain()
-        
-        config.image = image
-        config.imagePlacement = .all
-        config.background.backgroundColor = UIColor(named: "ButtonColor")
-        config.background.cornerRadius = 1000
-        config.imagePadding = 12.88
-        
-        button.configuration = config
-        return button
+    let sheetContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(named: "OffWhiteColor") ?? .systemGray6
+        view.layer.cornerCurve = .continuous
+        view.layer.cornerRadius = 32
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
+        return view
     }()
     
     override func viewDidLoad() {
@@ -120,101 +92,242 @@ class ARViewController: UIViewController {
         customARViewModel.renderAllMemories(arView: customARView)
     }
     
-    func setupController() {
-        //configure view
-        audioButton.layer.zPosition = 10
-        let tapGesture = UITapGestureRecognizer(target: customARView,
-                                                action: #selector(customARView.handleTap))
-        customARView.defineAudioService(audioService: audioService)
-        customARView.addGestureRecognizer(tapGesture)
-        //add subviews
-        view.addSubview(customARView)
-        view.addSubview(audioButton)
-        view.addSubview(searchButton)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        setupLibrarySheet()
+    }
+    
+    func setupLibrarySheet() {
+        guard libraryViewController == nil else { return }
+
+        view.addSubview(sheetContainerView)
+
+        libraryViewController = LibraryViewController(audioService: audioService)
+        guard let libraryVC = libraryViewController else { return }
+
+        libraryVC.onCloseTapped = { [weak self] in
+            self?.updateSheetState(isExpanded: false, animated: true)
+        }
+
+        addChild(libraryVC)
+        view.addSubview(libraryVC.view)
+        libraryVC.didMove(toParent: self)
+
+        libraryVC.view.translatesAutoresizingMaskIntoConstraints = false
+        libraryVC.view.alpha = 0
+        libraryVC.view.isUserInteractionEnabled = false
         
-        view.addSubview(libraryButton)
-        view.addSubview(shareButton)
+        libraryBottomConstraint = sheetContainerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        libraryHeightConstraint = sheetContainerView.heightAnchor.constraint(equalToConstant: collapsedSheetHeaderHeight)
+        
+        NSLayoutConstraint.activate([
+            sheetContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sheetHorizontalInset),
+            sheetContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sheetHorizontalInset),
+            libraryBottomConstraint!,
+            libraryHeightConstraint!,
+
+            libraryVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sheetHorizontalInset),
+            libraryVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sheetHorizontalInset),
+            libraryVC.view.topAnchor.constraint(equalTo: sheetContainerView.bottomAnchor),
+            libraryVC.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        sheetContainerView.addSubview(sheetGrabberView)
+        sheetContainerView.addSubview(audioButton)
+
+        audioButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            sheetGrabberView.centerXAnchor.constraint(equalTo: sheetContainerView.centerXAnchor),
+            sheetGrabberView.topAnchor.constraint(equalTo: sheetContainerView.topAnchor, constant: 10),
+            sheetGrabberView.widthAnchor.constraint(equalToConstant: 36),
+            sheetGrabberView.heightAnchor.constraint(equalToConstant: 4),
+
+            audioButton.centerXAnchor.constraint(equalTo: sheetContainerView.centerXAnchor),
+            audioButton.centerYAnchor.constraint(equalTo: sheetContainerView.centerYAnchor, constant: -6),
+            audioButton.widthAnchor.constraint(equalToConstant: 78),
+            audioButton.heightAnchor.constraint(equalToConstant: 78)
+        ])
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(grabberTapped))
+        sheetGrabberView.addGestureRecognizer(tapGesture)
+
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        sheetContainerView.addGestureRecognizer(panGesture)
+        self.panGesture = panGesture
+    }
+    
+    @objc func grabberTapped() {
+        updateSheetState(isExpanded: !isLibraryExpanded, animated: true)
+    }
+    
+    @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard !audioService.isRecording else { return }
+
+        let translation = gesture.translation(in: view)
+        let maxMovement = view.bounds.height - expandedSheetTopInset - expandedSheetHeaderHeight
+
+        switch gesture.state {
+        case .began:
+            panStartBottomConstant = libraryBottomConstraint?.constant ?? 0
+
+        case .changed:
+            let proposedConstant = panStartBottomConstant + translation.y
+            let constrainedConstant = min(max(proposedConstant, -maxMovement), 0)
+            libraryBottomConstraint?.constant = constrainedConstant
+            let progress = min(max(-constrainedConstant / maxMovement, 0), 1)
+            libraryHeightConstraint?.constant = collapsedSheetHeaderHeight - ((collapsedSheetHeaderHeight - expandedSheetHeaderHeight) * progress)
+            audioButton.alpha = 1 - progress
+            libraryViewController?.view.alpha = progress
+            view.layoutIfNeeded()
+
+        case .ended:
+            let velocity = gesture.velocity(in: view).y
+            let currentOffset = -(libraryBottomConstraint?.constant ?? 0)
+
+            if velocity < -500 {
+                updateSheetState(isExpanded: true, animated: true)
+            }
+            else if velocity > 500 {
+                updateSheetState(isExpanded: false, animated: true)
+            }
+            else {
+                updateSheetState(isExpanded: currentOffset > maxMovement * 0.5, animated: true)
+            }
+
+        default:
+            break
+        }
+    }
+
+    func updateSheetState(isExpanded: Bool, animated: Bool) {
+        let wasExpanded = isLibraryExpanded
+        isLibraryExpanded = isExpanded
+
+        if isExpanded && !wasExpanded {
+            libraryViewController?.refreshCardsForCurrentSegment()
+        }
+
+        libraryBottomConstraint?.constant = isExpanded
+            ? -(view.bounds.height - expandedSheetTopInset - expandedSheetHeaderHeight)
+            : 0
+        libraryHeightConstraint?.constant = isExpanded ? expandedSheetHeaderHeight : collapsedSheetHeaderHeight
+        let libraryAlpha: CGFloat = isExpanded ? 1 : 0
+        let microphoneAlpha: CGFloat = isExpanded ? 0 : 1
+
+        libraryViewController?.view.isUserInteractionEnabled = isExpanded
+
+        let animations = {
+            self.audioButton.alpha = microphoneAlpha
+            self.libraryViewController?.view.alpha = libraryAlpha
+            self.view.layoutIfNeeded()
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.7, options: [.curveEaseInOut, .allowUserInteraction], animations: animations)
+        }
+        else {
+            animations()
+        }
+    }
+
+    func presentAudioSheet(for entityName: String) {
+        let cards = CoreDataService.shared.fetchAllCards()
+        guard let card = cards.first(where: { $0.id?.uuidString == entityName }),
+              let audio = card.audio else { return }
+
+        let audioSheet = AudioSheetController()
+        let dateText: String
+
+        if let date = card.date {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "pt_BR")
+            formatter.dateFormat = "dd 'de' MMMM, yyyy"
+            dateText = formatter.string(from: date).capitalized
+        }
+        else {
+            dateText = ""
+        }
+
+        audioSheet.configure(
+            name: card.name ?? "Meu relato",
+            date: dateText,
+            audioUrl: audio
+        )
+        audioSheet.modalPresentationStyle = .pageSheet
+
+        if let cubeSheet = audioSheet.sheetPresentationController {
+            cubeSheet.detents = [.medium(), .large()]
+            cubeSheet.prefersGrabberVisible = true
+        }
+
+        present(audioSheet, animated: true)
+    }
+
+    func setupController() {
+        audioButton.layer.zPosition = 20
+        let tapGesture = UITapGestureRecognizer(target: customARView,
+                                                action: #selector(CustomARView.handleTap(_:)))
+        customARView.defineAudioService(audioService: audioService)
+        customARView.onCubeTapped = { [weak self] entityName in
+            self?.presentAudioSheet(for: entityName)
+        }
+        customARView.addGestureRecognizer(tapGesture)
+        
+        view.addSubview(customARView)
         view.addSubview(recordingSavedView)
 
-        //target
-        shareButton.addTarget(self, action: #selector(share(_:)), for: .touchUpInside)
-        libraryButton.addTarget(self, action: #selector(openLibrary(_:)), for: .touchUpInside)
-        
-        // addTarget
-        searchButton.addTarget(self, action: #selector(playAudio(_:)), for: .touchUpInside)
-        
         audioButton.addTarget(self, action: #selector(recordTouchDown(_:)), for: .touchDown)
         audioButton.addTarget(self, action: #selector(recordTouchUpInside(_:)), for: .touchUpInside)
         audioButton.addTarget(self, action: #selector(recordTouchUpOutside(_:)), for: .touchUpOutside)
         audioButton.addTarget(self, action: #selector(recordTouchCancel(_:)), for: .touchCancel)
     
-        // add constrains
         NSLayoutConstraint.activate([
             customARView.topAnchor.constraint(equalTo: view.topAnchor),
             customARView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             customARView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             customARView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            audioButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 101.38),
-            audioButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32.25),
-            audioButton.widthAnchor.constraint(equalToConstant: 78),
-            audioButton.heightAnchor.constraint(equalToConstant: 78),
-            
-            searchButton.leadingAnchor.constraint(equalTo: audioButton.trailingAnchor, constant: 32.65),
-            searchButton.bottomAnchor.constraint(equalTo: audioButton.bottomAnchor),
-            searchButton.widthAnchor.constraint(equalToConstant: 78),
-            searchButton.heightAnchor.constraint(equalToConstant: 78),
-
-            libraryButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
-            libraryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-            libraryButton.widthAnchor.constraint(equalToConstant: 52),
-            libraryButton.heightAnchor.constraint(equalToConstant: 52),            
 
             recordingSavedView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             recordingSavedView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             recordingSavedView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -8),
-            recordingSavedView.heightAnchor.constraint(equalToConstant: 24),
-
-            shareButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
-            shareButton.trailingAnchor.constraint(equalTo: view.leadingAnchor, constant: 82),
-            shareButton.widthAnchor.constraint(equalToConstant: 52),
-            shareButton.heightAnchor.constraint(equalToConstant: 52),
+            recordingSavedView.heightAnchor.constraint(equalToConstant: 24)
         ])
     }
     
     @objc func recordTouchDown(_ sender: Any) {
+        panGesture?.isEnabled = false
         audioService.startRecording()
     }
 
     @objc func recordTouchUpInside(_ sender: Any) {
         audioService.stopRecordingIfNeeded()
+        panGesture?.isEnabled = true
         creatARObj()
     }
 
     @objc func recordTouchUpOutside(_ sender: Any) {
         audioService.stopRecordingIfNeeded()
+        panGesture?.isEnabled = true
         creatARObj()
 
     }
 
     @objc func recordTouchCancel(_ sender: Any) {
         audioService.stopRecordingIfNeeded()
+        panGesture?.isEnabled = true
         creatARObj()
     }
 
-    private func setAudioButtonRecordingState(isRecording: Bool) {
-        let configImage = UIImage.SymbolConfiguration(pointSize: 40)
-        let tintColor: UIColor = isRecording ? .systemGreen : .white
+    func setAudioButtonRecordingState(isRecording: Bool) {
+        let configImage = UIImage.SymbolConfiguration(pointSize: 30)
+        let tintColor: UIColor = isRecording ? (UIColor(named: "AccentColor") ?? .systemOrange) : (UIColor(named: "ButtonColor") ?? .systemGray4)
         let image = UIImage(systemName: "microphone.fill", withConfiguration: configImage)?
             .withTintColor(tintColor, renderingMode: .alwaysOriginal)
 
         guard var config = audioButton.configuration else { return }
         config.image = image
         audioButton.configuration = config
-    }
-    
-    @objc func playAudio(_ sender: Any) {
-        audioService.playAudio(sender)
     }
 
     func creatARObj() {
@@ -237,63 +350,45 @@ class ARViewController: UIViewController {
         }
     }
 
-    private func showRecordingSavedFeedback() {
+    func showRecordingSavedFeedback() {
+        animateSheetHeaderSavedFeedback()
+
         recordingSavedView.layer.removeAllAnimations()
         recordingSavedView.alpha = 1
 
         let bounce = CAKeyframeAnimation(keyPath: "transform.translation.y")
-        // O primeiro valor é o quando ele fica fora da tela e quanto maior mais "forte" ele sobe
-        // Os valores negativos deixam o bounce mais suave
         bounce.values = [18, -3, 0, -1, 0, 18]
         bounce.keyTimes = [0, 0.35, 0.55, 0.7, 0.82, 1]
         bounce.duration = 0.55
         bounce.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         bounce.fillMode = .forwards
         bounce.isRemovedOnCompletion = false
-        recordingSavedView.layer.add(bounce, forKey: "recordingSavedBounce")
+        recordingSavedView.layer.add(bounce, forKey: recordingSavedBounceAnimationKey)
 
         UIView.animate(withDuration: 0.18, delay: 0.57, options: [.curveEaseOut]) {
             self.recordingSavedView.alpha = 0
         } completion: { _ in
-            self.recordingSavedView.layer.removeAnimation(forKey: "recordingSavedBounce")
+            self.recordingSavedView.layer.removeAnimation(forKey: self.recordingSavedBounceAnimationKey)
         }
     }
-    
-    @objc func share(_ sender: Any) {
-        // compartilha o ultimo relato salvo (texto + localização + áudio)
-        // o audio vai junto em bytes para funcionar em outro app/dispositivo
-        let cards = CoreDataService.shared.fetchAllCards()
-        guard let card = cards.last,
-              let name = card.name,
-              let audioStoredValue = card.audio else { return }
 
-        // pega a URL real do áudio no app atual e le o conteudo do arquivo
-        let audioURL = audioService.resolveAudioURL(from: audioStoredValue)
-        let audioData = try? Data(contentsOf: audioURL)
-
-        // monta um payload com tudo e exporta como .person
-        let item = PersonObject(person: Person(
-            name: name,
-            id: card.id ?? UUID(),
-            lat: card.lat,
-            longe: card.longe,
-            audio: URL(fileURLWithPath: audioStoredValue).lastPathComponent,
-            compartilhado: true,
-            audioData: audioData,
-            date: card.date!
-        ))
-
-        // abre a sheet de compartilhamento
-        let ac = UIActivityViewController(activityItems: [item], applicationActivities: nil)
-        present(ac, animated: true)
-    }
-    
-    @objc func openLibrary(_ sender: Any) {
-        let libraryVC = LibraryViewController(audioService: audioService)
-        if let sheet = libraryVC.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
+    func animateSheetHeaderSavedFeedback() {
+        if panGesture?.state == .changed || panGesture?.state == .began {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
+                self?.animateSheetHeaderSavedFeedback()
+            }
+            return
         }
-        present(libraryVC, animated: true)
+
+        sheetContainerView.layer.removeAnimation(forKey: sheetSavedBounceAnimationKey)
+
+        let bounce = CAKeyframeAnimation(keyPath: "transform.translation.y")
+        bounce.values = [0, -10, 2, -2, 0]
+        bounce.keyTimes = [0, 0.3, 0.58, 0.78, 1]
+        bounce.duration = 0.45
+        bounce.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        bounce.isRemovedOnCompletion = true
+
+        sheetContainerView.layer.add(bounce, forKey: sheetSavedBounceAnimationKey)
     }
 }

@@ -15,6 +15,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var playbackMeterTimer: Timer?
     var expandedIndexPath: IndexPath?
     var playingIndexPath: IndexPath?
+    var onCloseTapped: (() -> Void)?
 
     var selector = UISegmentedControl(items: ["Minhas histórias", "Histórias da cidade"])
 
@@ -27,14 +28,20 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         table.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: 18, right: 0)
         return table
     }()
-    
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Biblioteca de Conteudos"
-        label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
-        label.textColor = UIColor(named: "OffBlackColor") ?? .label
-        return label
+
+    let closeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        var config = UIButton.Configuration.glass()
+        let configImage = UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
+        config.image = UIImage(systemName: "xmark", withConfiguration: configImage)
+        config.baseForegroundColor = UIColor(named: "OffBlackColor") ?? .label
+        config.baseBackgroundColor = .clear
+        config.cornerStyle = .capsule
+        config.contentInsets = .zero
+        button.backgroundColor = .clear
+        button.configuration = config
+        return button
     }()
     
     init(audioService: AudioService) {
@@ -49,6 +56,9 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "OffWhiteColor") ?? .systemBackground
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.layer.cornerCurve = .continuous
+        view.clipsToBounds = true
         configureSegmentedControl()
         setupUI()
         loadCards()
@@ -58,10 +68,24 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         selector.selectedSegmentIndex = 0
         selector.addTarget(self, action: #selector(numberHasChanged), for: .valueChanged)
         selector.translatesAutoresizingMaskIntoConstraints = false
+        selector.selectedSegmentTintColor = UIColor(named: "OffWhiteColor") ?? .systemBackground
+        selector.backgroundColor = .clear
+
+        let normalAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor(named: "OffBlackColor") ?? .label,
+            .font: UIFont.systemFont(ofSize: 13, weight: .regular)
+        ]
+        let selectedAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor(named: "OffBlackColor") ?? .label,
+            .font: UIFont.systemFont(ofSize: 13, weight: .semibold)
+        ]
+
+        selector.setTitleTextAttributes(normalAttributes, for: .normal)
+        selector.setTitleTextAttributes(selectedAttributes, for: .selected)
     }
     
     func setupUI() {
-        view.addSubview(titleLabel)
+        view.addSubview(closeButton)
         view.addSubview(selector)
         view.addSubview(tableView)
         
@@ -71,10 +95,12 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.estimatedRowHeight = 180
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
+            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            closeButton.widthAnchor.constraint(equalToConstant: 36),
+            closeButton.heightAnchor.constraint(equalToConstant: 36),
             
-            selector.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            selector.topAnchor.constraint(equalTo: view.topAnchor, constant: 52),
             selector.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             selector.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
@@ -83,10 +109,28 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+    }
+
+    @objc func closeButtonTapped() {
+        onCloseTapped?()
     }
     
     func loadCards() {
-        cards = CoreDataService.shared.fetchAllCards()
+        refreshCardsForCurrentSegment()
+    }
+
+    func refreshCardsForCurrentSegment() {
+        switch selector.selectedSegmentIndex {
+        case 0:
+            cards = CoreDataService.shared.fetchCardByNaoCompartilhado()
+        case 1:
+            cards = CoreDataService.shared.fetchCardByCompartilhado()
+        default:
+            cards = CoreDataService.shared.fetchAllCards()
+        }
+
         tableView.reloadData()
     }
     
@@ -112,7 +156,57 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             self?.togglePlayPause(at: indexPath)
         }
 
+        cell.onShareTapped = { [weak self] in
+            self?.shareCard(at: indexPath)
+        }
+
         return cell
+    }
+
+    func shareCard(at indexPath: IndexPath) {
+        guard cards.indices.contains(indexPath.row) else { return }
+
+        let card = cards[indexPath.row]
+        let audioName = card.audio ?? ""
+        let audioURL = audioService.resolveAudioURL(from: audioName)
+        let audioData = try? Data(contentsOf: audioURL)
+
+        let person = Person(
+            name: card.name ?? "Untitled Audio",
+            id: card.id ?? UUID(),
+            lat: card.lat,
+            longe: card.longe,
+            audio: audioName,
+            compartilhado: true,
+            audioData: audioData,
+            date: card.date ?? Date()
+        )
+        let personObject = PersonObject(person: person)
+
+        let activityController = UIActivityViewController(
+            activityItems: [personObject],
+            applicationActivities: nil
+        )
+
+        if let popover = activityController.popoverPresentationController {
+            if let cell = tableView.cellForRow(at: indexPath) as? LibraryAudioCell {
+                popover.sourceView = cell.shareButtonContainer
+                popover.sourceRect = cell.shareButtonContainer.bounds
+            }
+            else {
+                popover.sourceView = view
+                popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+            }
+        }
+
+        activityController.completionWithItemsHandler = { [weak self] _, completed, _, _ in
+            guard let self, completed else { return }
+            card.compartilhado = true
+            CoreDataService.shared.saveContext()
+            self.refreshCardsForCurrentSegment()
+        }
+
+        present(activityController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -260,17 +354,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         stopPlaybackUI()
         expandedIndexPath = nil
         playingIndexPath = nil
-        
-        switch selector.selectedSegmentIndex {
-        case 0:
-            cards = CoreDataService.shared.fetchCardByNaoCompartilhado()
-            tableView.reloadData()
-        case 1:
-            cards = CoreDataService.shared.fetchCardByCompartilhado()
-            tableView.reloadData()
-        default:
-            cards = CoreDataService.shared.fetchAllCards()
-            tableView.reloadData()
-        }
+
+        refreshCardsForCurrentSegment()
     }
 }
