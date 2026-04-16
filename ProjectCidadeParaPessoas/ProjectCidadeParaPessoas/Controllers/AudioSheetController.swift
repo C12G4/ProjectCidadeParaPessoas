@@ -160,6 +160,7 @@ final class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
     private let audioService = AudioService()
     private var audioPlayer: AVAudioPlayer?
     private var meteringTimer: Timer?
+    private var didStartAutoPlay = false
 
     var audioUrl: String = ""
 
@@ -263,10 +264,16 @@ final class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
         prepareAudioPlayer()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        playAudioIfNeeded()
+    }
+
     func configure(name: String, date: String, audioUrl: String) {
         nameLabel.text = name
         dateLabel.text = date
         self.audioUrl = audioUrl
+        didStartAutoPlay = false
 
         if isViewLoaded {
             configureContent()
@@ -299,7 +306,7 @@ final class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
             squareBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             squareMain.topAnchor.constraint(equalTo: squareBackground.topAnchor),
-            squareMain.leadingAnchor.constraint(equalTo: squareBackground.leadingAnchor),
+            squareMain.leadingAnchor.constraint(equalTo: squareBackground.leadingAnchor, constant: -1),
             squareMain.trailingAnchor.constraint(equalTo: squareBackground.trailingAnchor),
             squareMain.bottomAnchor.constraint(equalTo: playPillView.topAnchor, constant: -56),
 
@@ -387,6 +394,18 @@ final class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
         waveformView.startAnimating()
         updatePlayButton(isPlaying: true)
         startMetering()
+    }
+
+    private func playAudioIfNeeded() {
+        guard !didStartAutoPlay else { return }
+        didStartAutoPlay = true
+
+        if audioPlayer == nil {
+            prepareAudioPlayer()
+        }
+
+        guard let player = audioPlayer else { return }
+        startPlayback(using: player)
     }
 
     private func startMetering() {
