@@ -338,18 +338,28 @@ class ARViewController: UIViewController {
         let stringID = id.uuidString
         customARView.anchor.addChild(customARViewModel.creatObj(color: .purple, cameraTransform : customARView.cameraTransform, id: stringID))
         
-        if let audioPath = audioService.getAudioFilePath() {
-            let location = geoService.getActualLocation() ?? CLLocation(latitude: 0, longitude: 0)
+        guard let audioPath = audioService.getAudioFilePath() else { return }
+
+        let recordingDate = Date.now
+        let fallbackName = "Audio \(recordingDate.formatted(date: .abbreviated, time: .shortened))"
+        let actualLocation = geoService.getActualLocation()
+        let latitude = actualLocation?.coordinate.latitude ?? 0
+        let longitude = actualLocation?.coordinate.longitude ?? 0
+
+        geoService.resolvePlaceName(location: actualLocation, fallbackName: fallbackName) { [weak self] placeName in
+            guard let self else { return }
+
             _ = CoreDataService.shared.createCard(
-                name: "Audio \(Date().formatted(date: .abbreviated, time: .shortened))",
+                name: placeName,
                 id: id,
-                lat: location.coordinate.latitude,
-                longe: location.coordinate.longitude,
+                lat: latitude,
+                longe: longitude,
                 audio: audioPath,
                 compartilhado: false,
-                date: Date.now
+                date: recordingDate
             )
-            showRecordingSavedFeedback()
+
+            self.showRecordingSavedFeedback()
         }
     }
 
