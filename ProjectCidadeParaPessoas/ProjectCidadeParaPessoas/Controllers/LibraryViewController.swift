@@ -16,6 +16,8 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var expandedIndexPath: IndexPath?
     var playingIndexPath: IndexPath?
 
+    var selector = UISegmentedControl(items: ["Minhas histórias", "Histórias da cidade"])
+
     let tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -47,12 +49,20 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "OffWhiteColor") ?? .systemBackground
+        configureSegmentedControl()
         setupUI()
         loadCards()
+    }
+
+    func configureSegmentedControl() {
+        selector.selectedSegmentIndex = 0
+        selector.addTarget(self, action: #selector(numberHasChanged), for: .valueChanged)
+        selector.translatesAutoresizingMaskIntoConstraints = false
     }
     
     func setupUI() {
         view.addSubview(titleLabel)
+        view.addSubview(selector)
         view.addSubview(tableView)
         
         tableView.delegate = self
@@ -64,7 +74,11 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            selector.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            selector.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            selector.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            tableView.topAnchor.constraint(equalTo: selector.bottomAnchor, constant: 10),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -239,6 +253,24 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         else {
             tableView(tableView, didSelectRowAt: indexPath)
+        }
+    }
+
+    @objc func numberHasChanged(control: UISegmentedControl) {
+        stopPlaybackUI()
+        expandedIndexPath = nil
+        playingIndexPath = nil
+        
+        switch selector.selectedSegmentIndex {
+        case 0:
+            cards = CoreDataService.shared.fetchCardByNaoCompartilhado()
+            tableView.reloadData()
+        case 1:
+            cards = CoreDataService.shared.fetchCardByCompartilhado()
+            tableView.reloadData()
+        default:
+            cards = CoreDataService.shared.fetchAllCards()
+            tableView.reloadData()
         }
     }
 }
