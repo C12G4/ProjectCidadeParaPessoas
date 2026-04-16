@@ -51,7 +51,7 @@ class LibraryAudioCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.textColor = (UIColor(named: "ButtonColor") ?? .secondaryLabel).withAlphaComponent(0.9)
+        label.textColor = UIColor(named: "OffBlackColor") ?? .label
         label.numberOfLines = 1
         return label
     }()
@@ -67,7 +67,8 @@ class LibraryAudioCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         var config = UIButton.Configuration.glass()
-        config.image = UIImage(systemName: "square.and.arrow.up")
+        let configImage = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+        config.image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)
         config.baseForegroundColor = UIColor(named: "OffBlackColor") ?? .label
         config.baseBackgroundColor = .clear
         config.cornerStyle = .capsule

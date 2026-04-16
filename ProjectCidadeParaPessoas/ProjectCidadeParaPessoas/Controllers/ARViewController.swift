@@ -24,7 +24,7 @@ class ARViewController: UIViewController {
     var isLibraryExpanded = false
     let sheetHorizontalInset: CGFloat = 8
     let collapsedSheetHeaderHeight: CGFloat = 140
-    let expandedSheetHeaderHeight: CGFloat = 48
+    let expandedSheetHeaderHeight: CGFloat = 64
     let expandedSheetTopInset: CGFloat = 80
     var panGesture: UIPanGestureRecognizer?
 
