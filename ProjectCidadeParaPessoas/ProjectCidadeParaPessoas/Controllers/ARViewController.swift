@@ -338,8 +338,6 @@ class ARViewController: UIViewController {
         
         if let audioPath = audioService.getAudioFilePath() {
             let location = geoService.getActualLocation() ?? CLLocation(latitude: 0, longitude: 0)
-            print(location.coordinate.latitude)
-            print(location.coordinate.longitude)
             _ = CoreDataService.shared.createCard(
                 name: "Audio \(Date().formatted(date: .abbreviated, time: .shortened))",
                 id: id,
