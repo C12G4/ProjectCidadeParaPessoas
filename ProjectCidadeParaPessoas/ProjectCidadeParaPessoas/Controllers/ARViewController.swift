@@ -255,7 +255,8 @@ class ARViewController: UIViewController {
         audioSheet.configure(
             name: card.name ?? "Meu relato",
             date: dateText,
-            audioUrl: audio
+            audioUrl: audio,
+            cardObject: card
         )
         audioSheet.modalPresentationStyle = .pageSheet
 

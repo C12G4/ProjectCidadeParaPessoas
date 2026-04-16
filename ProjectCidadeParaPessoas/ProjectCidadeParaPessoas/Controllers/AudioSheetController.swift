@@ -14,6 +14,7 @@ class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
     var playbackUpdateTimer: Timer?
     var audioUrl: String = ""
     var didStartAutoPlay = false
+    var card: Card?
 
     var squareBackground: UIView = {
         let view = UIView()
@@ -80,7 +81,7 @@ class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
 
         var config = UIButton.Configuration.glass()
         let configImage = UIImage.SymbolConfiguration(pointSize: 24, weight: .semibold)
-        config.image = UIImage(systemName: "xmark", withConfiguration: configImage)?.withTintColor(UIColor(named: "OffBlackColor") ?? .label, renderingMode: .alwaysOriginal)
+        config.image = UIImage(systemName: "square.and.arrow.up", withConfiguration: configImage)?.withTintColor(UIColor(named: "OffBlackColor") ?? .label, renderingMode: .alwaysOriginal)
         config.baseForegroundColor = UIColor(named: "OffBlackColor") ?? .label
         config.baseBackgroundColor = .clear
         config.cornerStyle = .capsule
@@ -116,15 +117,42 @@ class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
         playAudioIfNeeded()
     }
 
-    func configure(name: String, date: String, audioUrl: String) {
+    func configure(name: String, date: String, audioUrl: String, cardObject: Card) {
         nameLabel.text = name
         dateLabel.text = date
         self.audioUrl = audioUrl
+        self.card = cardObject
         didStartAutoPlay = false
 
         if isViewLoaded {
             prepareAudioPlayer()
         }
+    }
+    
+    @objc func shareCard() {
+        
+        let audioName = card!.audio ?? ""
+        let audioURL = audioService.resolveAudioURL(from: audioName)
+        let audioData = try? Data(contentsOf: audioURL)
+
+        let person = Person(
+            name: card!.name ?? "Untitled Audio",
+            id: card!.id ?? UUID(),
+            lat: card!.lat,
+            longe: card!.longe,
+            audio: audioName,
+            compartilhado: true,
+            audioData: audioData,
+            date: card!.date ?? Date()
+        )
+        let personObject = PersonObject(person: person)
+
+        let activityController = UIActivityViewController(
+            activityItems: [personObject],
+            applicationActivities: nil
+        )
+        
+        present(activityController, animated: true)
     }
 
     func setupView() {
@@ -143,7 +171,7 @@ class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
         playPillView.addSubview(timerView)
         playPillView.addSubview(playIconView)
         playPillView.addTarget(self, action: #selector(playPillTapped), for: .touchUpInside)
-        exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
+        exitButton.addTarget(self, action: #selector(shareCard), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
             squareBackground.topAnchor.constraint(equalTo: view.topAnchor),
@@ -186,7 +214,9 @@ class AudioSheetController: UIViewController, AVAudioPlayerDelegate {
             playIconView.heightAnchor.constraint(equalToConstant: 16)
         ])
     }
-
+    
+    
+    
     func prepareAudioPlayer() {
         stopPlaybackUI()
         stopPlaybackUpdates()
