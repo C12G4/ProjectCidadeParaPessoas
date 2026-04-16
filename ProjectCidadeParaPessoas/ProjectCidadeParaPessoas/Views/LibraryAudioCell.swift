@@ -20,12 +20,14 @@ class LiquidGlassButton: UIButton {
     }
     
     func setupLiquidGlass() {
-        backgroundColor = UIColor.white.withAlphaComponent(0.35)
+        var config = UIButton.Configuration.glass()
+        config.baseForegroundColor = UIColor(named: "OffBlackColor") ?? .label
+        config.baseBackgroundColor = .clear
+        config.cornerStyle = .capsule
+        config.contentInsets = .zero
+        backgroundColor = .clear
         tintColor = UIColor(named: "OffBlackColor") ?? .label
-        layer.cornerRadius = 20
-        layer.cornerCurve = .continuous
-        layer.borderWidth = 0
-        clipsToBounds = true
+        configuration = config
     }
 }
 
