@@ -66,6 +66,11 @@ class CoreDataService: ObservableObject{
         }
     }
     
+    func deleteCard(_ card: Card){
+        viewContext.delete(card)
+        saveContext()
+    }
+    
     func fetchCardByCompartilhado() -> [Card] {
         let request: NSFetchRequest<Card> = Card.fetchRequest()
         request.predicate = NSPredicate(format: "compartilhado == YES")
@@ -75,7 +80,7 @@ class CoreDataService: ObservableObject{
             return results
         } catch {
             print("Fetch failed")
-            return[]
+            return []
         }
     }
     
@@ -88,12 +93,7 @@ class CoreDataService: ObservableObject{
             return results
         } catch {
             print("Fetch failed")
-            return[]
+            return []
         }
-    }
-    
-    func deleteCard(_ card: Card){
-        viewContext.delete(card)
-        saveContext()
     }
 }
