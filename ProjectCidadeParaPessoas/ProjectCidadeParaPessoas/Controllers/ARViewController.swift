@@ -201,7 +201,13 @@ class ARViewController: UIViewController {
     }
 
     func updateSheetState(isExpanded: Bool, animated: Bool) {
+        let wasExpanded = isLibraryExpanded
         isLibraryExpanded = isExpanded
+
+        if isExpanded && !wasExpanded {
+            libraryViewController?.refreshCardsForCurrentSegment()
+        }
+
         libraryBottomConstraint?.constant = isExpanded
             ? -(view.bounds.height - expandedSheetTopInset - expandedSheetHeaderHeight)
             : 0

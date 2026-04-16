@@ -118,7 +118,19 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func loadCards() {
-        cards = CoreDataService.shared.fetchAllCards()
+        refreshCardsForCurrentSegment()
+    }
+
+    func refreshCardsForCurrentSegment() {
+        switch selector.selectedSegmentIndex {
+        case 0:
+            cards = CoreDataService.shared.fetchCardByNaoCompartilhado()
+        case 1:
+            cards = CoreDataService.shared.fetchCardByCompartilhado()
+        default:
+            cards = CoreDataService.shared.fetchAllCards()
+        }
+
         tableView.reloadData()
     }
     
@@ -292,17 +304,7 @@ class LibraryViewController: UIViewController, UITableViewDelegate, UITableViewD
         stopPlaybackUI()
         expandedIndexPath = nil
         playingIndexPath = nil
-        
-        switch selector.selectedSegmentIndex {
-        case 0:
-            cards = CoreDataService.shared.fetchCardByNaoCompartilhado()
-            tableView.reloadData()
-        case 1:
-            cards = CoreDataService.shared.fetchCardByCompartilhado()
-            tableView.reloadData()
-        default:
-            cards = CoreDataService.shared.fetchAllCards()
-            tableView.reloadData()
-        }
+
+        refreshCardsForCurrentSegment()
     }
 }
