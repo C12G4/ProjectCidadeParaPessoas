@@ -31,7 +31,7 @@ class CustomARView: ARView {
         self.scene.addAnchor(anchor)
     }
     
-    @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
+    @objc func handleTap(_ recognizer: UITapGestureRecognizer, arViewController: ARViewController) {
         let arView = self
         let tapLocation = recognizer.location(in: arView)
         
@@ -44,6 +44,11 @@ class CustomARView: ARView {
 
                 }
             }
+            SheetService.shared.name = actualCard.name!
+            SheetService.shared.audio = actualCard.audio!
+            SheetService.shared.date = actualCard.id!.uuidString
+            SheetService.shared.isSheetShowing = true
+            
             let url = audioService!.resolveAudioURL(from: actualCard.audio ?? "")
             print(url)
             if FileManager.default.fileExists(atPath: url.path) {
@@ -60,5 +65,4 @@ class CustomARView: ARView {
     func defineAudioService(audioService: AudioService){
         self.audioService = audioService
     }
-    
 }

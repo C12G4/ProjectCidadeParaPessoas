@@ -355,4 +355,21 @@ class ARViewController: UIViewController {
 
         sheetContainerView.layer.add(bounce, forKey: sheetSavedBounceAnimationKey)
     }
+    
+    func openCube(name: String, audio: String, date: String) {
+        let audioSheet = AudioSheetController()
+        audioSheet.nameLabel.text = name
+        print(name)
+        audioSheet.audioUrl = audio
+        print(audio)
+        audioSheet.dateLabel.text = date
+        print(date)
+        if let cubeSheet = audioSheet.sheetPresentationController {
+            cubeSheet.detents = [.medium(), .large()]
+            cubeSheet.prefersGrabberVisible = true
+            print(true)
+        }
+        present(audioSheet, animated: true)
+        print("present")
+    }
 }
