@@ -10,6 +10,9 @@ import RealityKit
 import CoreLocation
 
 class ARViewController: UIViewController {
+    let sheetSavedBounceAnimationKey = "sheetSavedBounce"
+    let recordingSavedBounceAnimationKey = "recordingSavedBounce"
+
     let audioService = AudioService()
     let customARViewModel = CustomARViewModel()
     let geoService = GeoSerive()
@@ -306,6 +309,8 @@ class ARViewController: UIViewController {
     }
 
     func showRecordingSavedFeedback() {
+        animateSheetHeaderSavedFeedback()
+
         recordingSavedView.layer.removeAllAnimations()
         recordingSavedView.alpha = 1
 
@@ -316,12 +321,32 @@ class ARViewController: UIViewController {
         bounce.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         bounce.fillMode = .forwards
         bounce.isRemovedOnCompletion = false
-        recordingSavedView.layer.add(bounce, forKey: "recordingSavedBounce")
+        recordingSavedView.layer.add(bounce, forKey: recordingSavedBounceAnimationKey)
 
         UIView.animate(withDuration: 0.18, delay: 0.57, options: [.curveEaseOut]) {
             self.recordingSavedView.alpha = 0
         } completion: { _ in
-            self.recordingSavedView.layer.removeAnimation(forKey: "recordingSavedBounce")
+            self.recordingSavedView.layer.removeAnimation(forKey: self.recordingSavedBounceAnimationKey)
         }
+    }
+
+    func animateSheetHeaderSavedFeedback() {
+        if panGesture?.state == .changed || panGesture?.state == .began {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
+                self?.animateSheetHeaderSavedFeedback()
+            }
+            return
+        }
+
+        sheetContainerView.layer.removeAnimation(forKey: sheetSavedBounceAnimationKey)
+
+        let bounce = CAKeyframeAnimation(keyPath: "transform.translation.y")
+        bounce.values = [0, -10, 2, -2, 0]
+        bounce.keyTimes = [0, 0.3, 0.58, 0.78, 1]
+        bounce.duration = 0.45
+        bounce.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        bounce.isRemovedOnCompletion = true
+
+        sheetContainerView.layer.add(bounce, forKey: sheetSavedBounceAnimationKey)
     }
 }
