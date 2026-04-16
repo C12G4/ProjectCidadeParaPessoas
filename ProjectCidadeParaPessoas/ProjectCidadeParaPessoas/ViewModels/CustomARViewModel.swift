@@ -12,6 +12,7 @@ import Foundation
 
 class CustomARViewModel {
     private var initialLocation = CLLocation(latitude: 0, longitude: 0)
+    var geoService = GeoSerive()
     
     var fistTime: Bool = true
     var count = -0.1
@@ -34,8 +35,22 @@ class CustomARViewModel {
     }
     
     private func gpsToSIMD3(lat: Double, lon: Double) -> SIMD3<Float> {
+        let radius = 6378.137
+        
+        let lon1 = initialLocation.coordinate.longitude * Double.pi / 180.0
+        let lat1 = initialLocation.coordinate.latitude * Double.pi / 180.0
+        
+        let lon2 = lon * Double.pi / 180
+        let lat2 = lat * Double.pi / 180
+        
         let dLat = (lat - initialLocation.coordinate.latitude) * Double.pi / 180.0
         let dLon = (lon - initialLocation.coordinate.longitude) * Double.pi / 180.0
+        
+        let a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) * sin(dLon/2) * sin(dLon/2)
+        let c = 2 * atan2(sqrt(a), sqrt(1-a))
+        
+        let z = sqrt(a) * radius
+        let x = sqrt(1-a) * radius
         
         return SIMD3<Float>(Float(dLat), Float(0), Float(dLon))
     }
@@ -57,12 +72,16 @@ class CustomARViewModel {
             entity.name = card.id?.uuidString ?? "No ID"
             
             arView.anchor.addChild(entity)
-//            print("x = \(entity.position.x)")
-//            print("z = \(entity.position.z))")
+            print(entity.position.x)
+            print(entity.position.z)
         }
     }
     
     func deleteAllRenderd(arView: CustomARView){
         arView.anchor.children.removeAll()
+    }
+    
+    func setInitialLocation(){
+        initialLocation = geoService.getActualLocation() ?? CLLocation(latitude: 0, longitude: 0)
     }
 }
