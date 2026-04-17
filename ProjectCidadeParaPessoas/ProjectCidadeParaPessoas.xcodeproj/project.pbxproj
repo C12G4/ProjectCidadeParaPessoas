@@ -155,6 +155,7 @@
 				DEVELOPMENT_TEAM = JC55C9UADF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Vivacidade;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Esse aplicativo precisa de acesso a camera para renderizar os relatos, por favor, conceda a permissao.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
@@ -196,6 +197,7 @@
 				DEVELOPMENT_TEAM = JC55C9UADF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ProjectCidadeParaPessoas/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Vivacidade;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Esse aplicativo precisa de acesso a camera para renderizar os relatos, por favor, conceda a permissao.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Esse aplicativo precisa que a geolocalizacao seja compartilhada para gerar e salvar corretamente os relatos em realidade aumentada, por favor, conceda a permissao.";
